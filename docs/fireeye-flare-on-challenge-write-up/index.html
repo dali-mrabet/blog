@@ -44,7 +44,7 @@
     <meta property="og:description" content="Earlier this week , I have participated in Flare-On challenge which is hosted by Fire-Eye labs annually . The challenge was very comprehensive as its tasks targeted various platforms Windows(64-bit exe, Software Driver , .NET) , Android , etc ... . Unfortunatley , I started playing just 3 hours before the challenge was over , so I solved" />
     <meta property="og:url" content="http://localhost:2368/fireeye-flare-on-challenge-write-up/" />
     <meta property="article:published_time" content="2019-08-01T19:38:32.000Z" />
-    <meta property="article:modified_time" content="2019-08-01T19:38:32.000Z" />
+    <meta property="article:modified_time" content="2019-08-01T19:54:54.000Z" />
     <meta property="article:publisher" content="https://www.facebook.com/dali.mrabet.3" />
     <meta property="article:author" content="https://www.facebook.com/dali.mrabet.3" />
     <meta name="twitter:card" content="summary" />
@@ -82,7 +82,7 @@
     "headline": "FireEye FLARE-ON challenge write-up",
     "url": "http://localhost:2368/fireeye-flare-on-challenge-write-up/",
     "datePublished": "2019-08-01T19:38:32.000Z",
-    "dateModified": "2019-08-01T19:38:32.000Z",
+    "dateModified": "2019-08-01T19:54:54.000Z",
     "description": "Earlier this week , I have participated in Flare-On challenge which is hosted by Fire-Eye labs annually . The challenge was very comprehensive as its tasks targeted various platforms Windows(64-bit exe, Software Driver , .NET) , Android , etc ... . Unfortunatley , I started playing just 3 hours before the challenge was over , so I solved",
     "mainEntityOfPage": {
         "@type": "WebPage",
@@ -103,7 +103,7 @@
 
     <header id="site-head">
         <h1 class="blog-title"><a href="../index.html">Mohamed Ali Mrabet </a></h1>
-        <h1 class="blog-subtitle">Thoughts, stories and ideas.</h1>
+        <h1 class="blog-subtitle">My thoughts,  and ramblings.</h1>
     </header>
 
         <nav class="menu" role="nav">
@@ -121,8 +121,8 @@
         <div class="post-meta"><time datetime="2019-08-01">01 August 2019</time></div>
         </header>
         <section class="post-content">
-            <!--kg-card-begin: markdown--><p>Earlier this week , I have participated in Flare-On challenge which is hosted by Fire-Eye labs annually . The challenge was very comprehensive as its tasks targeted various platforms Windows(64-bit exe, Software Driver , .NET) , Android , etc ... . Unfortunatley , I started playing just 3 hours before the challenge was over , so I solved only the first two crackmes , just for my scrutiny I plan to solve other ones as time permits. In this Blogpost I will be talking about on how I solved the 2nd binary .The moment when I opened it with IDA , the very first thing that I have noticed is that the main function prologue stack setup is messed up just to throw off the hex-rays decompiler .<br>
-At the first glance , it is obvious that it gets both <em>StdInput</em> and <em>StdOutput</em> with the help of GetStdHandle() API so that to be passed respectively as parameters to WriteFile() and Readfile() to display and read the password ,ain't nothing fuzzy here ,it is pretty straightforward. Upon further disassembling the crackme , I stumbled upon a significant block of code which it was apparent to me that it is related with the  flag generation algorithm .</p>
+            <!--kg-card-begin: markdown--><p>Earlier this week , I have participated in Flare-On challenge which is hosted by Fire-Eye labs annually . The challenge was very comprehensive as its tasks targeted various platforms Windows(64-bit exe, Software Driver , .NET) , Android , etc ... . Unfortunatley , I started playing just 3 hours before the challenge was over , so I solved only the first two crackmes , just for my scrutiny I plan to solve other ones as time permits. In this Blogpost I will be talking about on how I solved the 2nd binary .The moment when I opened it with IDA , the very first thing that I have noticed is that the main function prologue stack setup is messed up just to throw off the hex-rays decompiler.</p>
+<p>At the first glance , it is obvious that it gets both <em>StdInput</em> and <em>StdOutput</em> with the help of GetStdHandle() API so that to be passed respectively as parameters to WriteFile() and Readfile() to display and read the password ,ain't nothing fuzzy here ,it is pretty straightforward. Upon further disassembling the crackme , I stumbled upon a significant block of code which it was apparent to me that it is related with the  flag generation algorithm .</p>
 <!--kg-card-end: markdown--><!--kg-card-begin: html--><pre class="line-numbers"><code class="lang-c">
 .text:004010A2 loc_4010A2:                           
 ; CODE XREF: sub_401084+4F

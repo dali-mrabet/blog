@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
 
-    <title>FireEye FLARE-ON challenge write-up</title>
+    <title>test</title>
 
     <meta name="HandheldFriendly" content="True" />
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
@@ -14,17 +14,17 @@
     
     <meta property="og:site_name" content="Mohamed Ali Mrabet " />
     <meta property="og:type" content="article" />
-    <meta property="og:title" content="FireEye FLARE-ON challenge write-up" />
-    <meta property="og:description" content="Earlier this week , I have participated in Flare-On challenge which is hosted by Fire-Eye labs annually . The challenge was very comprehensive as its tasks targeted various platforms Windows(64-bit exe, Software Driver , .NET) , Android , etc ... . Unfortunatley , I started playing just 3 hours before the challenge was over , so I solved" />
-    <meta property="og:url" content="http://localhost:2368/fireeye-flare-on-challenge-write-up/" />
-    <meta property="article:published_time" content="2019-08-01T19:38:32.000Z" />
-    <meta property="article:modified_time" content="2019-08-01T19:54:54.000Z" />
+    <meta property="og:title" content="test" />
+    <meta property="og:description" content="teasda" />
+    <meta property="og:url" content="http://localhost:2368/test/" />
+    <meta property="article:published_time" content="2019-08-01T19:56:11.000Z" />
+    <meta property="article:modified_time" content="2019-08-01T19:56:11.000Z" />
     <meta property="article:publisher" content="https://www.facebook.com/dali.mrabet.3" />
     <meta property="article:author" content="https://www.facebook.com/dali.mrabet.3" />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="FireEye FLARE-ON challenge write-up" />
-    <meta name="twitter:description" content="Earlier this week , I have participated in Flare-On challenge which is hosted by Fire-Eye labs annually . The challenge was very comprehensive as its tasks targeted various platforms Windows(64-bit exe, Software Driver , .NET) , Android , etc ... . Unfortunatley , I started playing just 3 hours before the challenge was over , so I solved" />
-    <meta name="twitter:url" content="http://localhost:2368/fireeye-flare-on-challenge-write-up/" />
+    <meta name="twitter:title" content="test" />
+    <meta name="twitter:description" content="teasda" />
+    <meta name="twitter:url" content="http://localhost:2368/test/" />
     <meta name="twitter:label1" content="Written by" />
     <meta name="twitter:data1" content="mohamed ali MRABET" />
     <meta name="twitter:site" content="@Mrabet_Dali" />
@@ -53,11 +53,11 @@
             "https://twitter.com/Mrabet_Dali"
         ]
     },
-    "headline": "FireEye FLARE-ON challenge write-up",
-    "url": "http://localhost:2368/fireeye-flare-on-challenge-write-up/",
-    "datePublished": "2019-08-01T19:38:32.000Z",
-    "dateModified": "2019-08-01T19:54:54.000Z",
-    "description": "Earlier this week , I have participated in Flare-On challenge which is hosted by Fire-Eye labs annually . The challenge was very comprehensive as its tasks targeted various platforms Windows(64-bit exe, Software Driver , .NET) , Android , etc ... . Unfortunatley , I started playing just 3 hours before the challenge was over , so I solved",
+    "headline": "test",
+    "url": "http://localhost:2368/test/",
+    "datePublished": "2019-08-01T19:56:11.000Z",
+    "dateModified": "2019-08-01T19:56:11.000Z",
+    "description": "teasda",
     "mainEntityOfPage": {
         "@type": "WebPage",
         "@id": "http://localhost:2368/"
@@ -89,7 +89,7 @@
         <article class="post">
 
             <header class="post-header">
-                <h1 class="post-title">FireEye FLARE-ON challenge write-up</h1>
+                <h1 class="post-title">test</h1>
                 <section class="post-meta">
                     <p class="author">by <a href="../../author/mohamed/index.html">mohamed ali MRABET</a></p>
                     <time class="post-date" datetime="2019-08-01">2019-08-01</time>
@@ -97,52 +97,7 @@
             </header>
             <section class="post-content">
 
-                <p>Earlier this week , I have participated in Flare-On challenge which is hosted by Fire-Eye labs annually . The challenge was very comprehensive as its tasks targeted various platforms Windows(64-bit exe, Software Driver , .NET) , Android , etc ... . Unfortunatley , I started playing just 3 hours before the challenge was over , so I solved only the first two crackmes , just for my scrutiny I plan to solve other ones as time permits. In this Blogpost I will be talking about on how I solved the 2nd binary .The moment when I opened it with IDA , the very first thing that I have noticed is that the main function prologue stack setup is messed up just to throw off the hex-rays decompiler.</p>
-<p>At the first glance , it is obvious that it gets both <em>StdInput</em> and <em>StdOutput</em> with the help of GetStdHandle() API so that to be passed respectively as parameters to WriteFile() and Readfile() to display and read the password ,ain't nothing fuzzy here ,it is pretty straightforward. Upon further disassembling the crackme , I stumbled upon a significant block of code which it was apparent to me that it is related with the  flag generation algorithm .</p>
-<pre class="line-numbers"><code class="lang-c">
-.text:004010A2 loc_4010A2:                           
-; CODE XREF: sub_401084+4F
-.text:004010A2                 mov     dx, bx
-.text:004010A5                 and     dx, 3 ; and the checksum byte with 3 .text:004010A9                 mov     ax, 1C7h
-.text:004010AD                 push    eax
-.text:004010AE                 sahf ; loads 0x1C7 into the EFLAGS reg
-.text:004010AF                 lodsb ; load the first byte into AX
-.text:004010B0                 pushf ; push the EFLAG into the stack .text:004010B1                 xor     al, [esp+10h+var_C] xor AL with 7c .text:004010B5                 xchg    cl, dl
-.text:004010B7                 rol     ah, cl ; rotate left by 1 .text:004010B9                 popf
-.text:004010BA                 adc     al, ah ; always added by 1 .text:004010BC                 xchg    cl, dl
-.text:004010BE                 xor     edx, edx
-.text:004010C0                 and     eax, 0FFh ; just clear the MSB of EAX .text:004010C5                 add     bx, ax ; and then add it to ebx to be rotated latelty by 1
-.text:004010C8                 scasb ; compare each hashed value by stored checksum 
-.text:004010C9                 cmovnz  cx, dx conditional mov 
-.text:004010CD                 pop     eax
-.text:004010CE                 jecxz   short loc_4010D7
-.text:004010D0                 sub     edi, 2
-.text:004010D3                 loop    loc_4010A2
-.text:004010D5                 jmp     short loc_4010D9`
-</code></pre><p>By carefully examining the encryption algorithm , the author plainly coded it in such a way that could be reversed .  I eventually came up with this python script to do the job for us :</p>
-<pre class="line-numbers"><code class="python">
-import sys
-
-CryptedValues =  [ 0xA8, 0x9A, 0x90, 0xB3, 0xB6, 0xBC, 0xB4, 0xAB, 0x9D, 0xAE, 0xF9, 0xB8, 0x9D, 0xB8, 0xAF, 0xBA, 0xA5, 0xA5, 0xBA, 0x9A, 0xBC, 0xB0, 0xA7, 0xC0, 0x8A, 0xAA, 0xAE, 0xAF, 0xBA, 0xA4, 0xEC, 0xAA, 0xAE, 0xEB, 0xAD, 0xAA, 0xAF]
-
-DX = 0
-BX = 0
-Flag = ''
-
-l = len(CryptedValues)
-
-for i in range(l):
-  DX = BX &amp; 3
-  DX = 1 &lt;&lt; DX         
-  a = CryptedValues[i] - DX - 1
-  b = a ^ 0xC7 
-  Flag += chr(b)
-  
-  BX += CryptedValues[i]
- 
-sys.stdout.write(Flag)
-  
-</code></pre>Flag : a_Little_b1t_harder_plez@flare-on.com
+                <p>teasda</p>
 
             </section>
 
