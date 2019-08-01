@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <title>My Simple Virtual Machine</title>
+
+    <meta name="apple-mobile-web-app-title" content="My Simple Virtual Machine">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png@v=deb4239dad">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32x32.png@v=deb4239dad">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16x16.png@v=deb4239dad">
+    <link rel="shortcut icon" href="../favicon.ico">
+
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?subset=latin,cyrillic-ext,latin-ext,cyrillic&amp;family=Open+Sans+Condensed:300|Merriweather:400,300,300italic,400italic,700,700italic|Roboto+Slab:400,300">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css">
+
+    <style type="text/css">
+    a, a:visited {color: #33cc99;}
+    .pagination a {color: #33cc99;}
+    .gist .gist-file .gist-meta a:visited {color: #33cc99 !important;}
+
+    a:focus, a:hover {color: #178b6b;}
+    h1.post-title a:focus, h1.post-title a:hover, h1.blog-title a:focus, h1.blog-title a:hover {color: #178b6b;}
+    .older-posts:hover, .newer-posts:hover {color: #178b6b;}
+</style>
+
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/github.min.css">
+    <link rel="stylesheet" href="../assets/css/steam.css@v=deb4239dad.css">
+
+
+    
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+    <link rel="canonical" href="index.html" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <link rel="amphtml" href="amp/index.html" />
+    
+    <meta property="og:site_name" content="Mohamed Ali Mrabet " />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="My Simple Virtual Machine" />
+    <meta property="og:description" content="In the Interest of binary obfuscation , Programmers often embed a virtual machine in their programs due to its tedious analysis and highly obfuscated routines which make use of a custom instruction set , hence this leaves no clue for the analyst as to what the binary workflow intends to perform and" />
+    <meta property="og:url" content="http://localhost:2368/my-simple-virtual-machine/" />
+    <meta property="article:published_time" content="2019-08-01T14:28:06.000Z" />
+    <meta property="article:modified_time" content="2019-08-01T14:28:06.000Z" />
+    <meta property="article:publisher" content="https://www.facebook.com/dali.mrabet.3" />
+    <meta property="article:author" content="https://www.facebook.com/dali.mrabet.3" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="My Simple Virtual Machine" />
+    <meta name="twitter:description" content="In the Interest of binary obfuscation , Programmers often embed a virtual machine in their programs due to its tedious analysis and highly obfuscated routines which make use of a custom instruction set , hence this leaves no clue for the analyst as to what the binary workflow intends to perform and" />
+    <meta name="twitter:url" content="http://localhost:2368/my-simple-virtual-machine/" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="mohamed ali MRABET" />
+    <meta name="twitter:site" content="@Mrabet_Dali" />
+    <meta name="twitter:creator" content="@Mrabet_Dali" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Mohamed Ali Mrabet ",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/favicon.ico",
+            "width": 60,
+            "height": 60
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "mohamed ali MRABET",
+        "url": "http://localhost:2368/author/mohamed/",
+        "sameAs": [
+            "https://www.facebook.com/dali.mrabet.3",
+            "https://twitter.com/Mrabet_Dali"
+        ]
+    },
+    "headline": "My Simple Virtual Machine",
+    "url": "http://localhost:2368/my-simple-virtual-machine/",
+    "datePublished": "2019-08-01T14:28:06.000Z",
+    "dateModified": "2019-08-01T14:28:06.000Z",
+    "description": "In the Interest of binary obfuscation , Programmers often embed a virtual machine in their programs due to its tedious analysis and highly obfuscated routines which make use of a custom instruction set , hence this leaves no clue for the analyst as to what the binary workflow intends to perform and",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://localhost:2368/"
+    }
+}
+    </script>
+
+    <meta name="generator" content="Ghost 2.26" />
+    <link rel="alternate" type="application/rss+xml" title="Mohamed Ali Mrabet " href="../rss/index.html" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/themes/prism.min.css" />
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/plugins/line-numbers/prism-line-numbers.min.css" />
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/themes/prism-coy.min.css" />
+</head>
+<body class="post-template">
+
+    <header id="site-head">
+        <h1 class="blog-title"><a href="../index.html">Mohamed Ali Mrabet </a></h1>
+        <h1 class="blog-subtitle">Thoughts, stories and ideas.</h1>
+    </header>
+
+        <nav class="menu" role="nav">
+        <ul>
+                    <li class="nav-home"><a href="../index.html">Home</a></li>
+                    <li class="nav-github"><a href="https://github.com/dali-mrabet">github</a></li>
+        </ul>
+    </nav>
+
+
+    <main class="content" role="main">
+    <article class="post">
+        <header>
+        <h1 class="post-title">My Simple Virtual Machine</h1>
+        <div class="post-meta"><time datetime="2019-08-01">01 August 2019</time></div>
+        </header>
+        <section class="post-content">
+            <!--kg-card-begin: markdown--><p>In the Interest of binary obfuscation , Programmers often embed a virtual machine in their programs due to its tedious analysis and highly obfuscated routines which make use of a custom instruction set , hence this leaves no clue for the analyst as to what the binary workflow intends to perform and will unquestionably slow down reverse engineering tasks .Accordingly , this is what pushed me to code my own register-based virtual machine which comprises of 17 virtual instructions (<em>MOV ,CALL, XOR, JMP, RET, CMP, HALT... etc ...</em>) , virtual stack(<em>because of the 'CALL' instruction</em>) and 10 virtual registers(<em>R1 ,R2 ,SP ,BP ..etc</em> ).<br>
+In abstract terms  ,  the virtual instructions are 4 bytes-aligned , each of which holds an operand and addressing mode , displacement and immediate value and the maximum value that a register can have is 255 .<br>
+Technically speaking , the VCPU is structured as the following :</p>
+<ul>
+<li>Virtual Stack</li>
+<li>Eflags</li>
+<li>Virtual Registers</li>
+<li>Program Counter</li>
+<li>Base address</li>
+</ul>
+<p>And since the virtual instruction is 4-byte length , thus the encoding scheme is conceived in this fashion :</p>
+<!--kg-card-end: markdown-->
+        </section>
+        <section class="post-tags">
+            
+        </section>
+        <section class="share">
+            <p class="backtotop"><a data-scroll href="index.html#site-head"><i class="fa fa-lg fa-fw fa-angle-double-up"></i></a><a data-scroll class="backtotoptext" href="index.html#site-head"> Back to top</a></p>
+            <p class="info prompt">Share</p>
+            <a href="http://twitter.com/share?text=My Simple Virtual Machine&url=http://localhost:2368/my-simple-virtual-machine/" title="Share on Twitter"
+                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fa fa-2x fa-fw fa-twitter-square"></i> <span class="hidden">Twitter</span>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:2368/my-simple-virtual-machine/" title="Share on Facebook"
+                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                <i class="fa fa-2x fa-fw fa-facebook-square" style="margin-left: -8px"></i> <span class="hidden">Facebook</span>
+            </a>
+            <a href="https://plus.google.com/share?url=http://localhost:2368/my-simple-virtual-machine/" title="Share on Google+"
+               onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                <i class="fa fa-2x fa-fw fa-google-plus-square" style="margin-left: -8px"></i> <span class="hidden">Google+</span>
+            </a>
+        </section>
+        <footer class="post-footer">
+            <section class="author">
+        <div class="authorimage" style="background: url(../assets/img/default-avatar.png@v=deb4239dad)"></div>
+    <h4 class="author-name">mohamed ali MRABET</h4>
+    <p class="bio"></p>
+    <p class="meta">
+      
+      <i class="fa fa-fw fa-map-marker"></i> Montreal,Quebec
+    </p>
+</section>
+        </footer>
+
+    </article>
+</main>
+
+
+    <footer class="site-footer">
+        <div class="inner">
+            <section class="footer-social">
+        <a href="https://www.facebook.com/dali.mrabet.3" target="_blank" rel="noopener" title="Facebook"><i class="fa fa-2x fa-fw fa-facebook"></i> <span class="hidden">Facebook</span></a>
+        <a href="https://twitter.com/Mrabet_Dali" target="_blank" rel="noopener" title="Twitter"><i class="fa fa-2x fa-fw fa-twitter"></i> <span class="hidden">Twitter</span></a>
+    <a href="../rss/index.html" target="_blank" rel="noopener" title="RSS"><i class="fa fa-2x fa-fw fa-rss"></i> <span class="hidden">RSS</span></a>
+</section>
+            <section class="footer-author">A blog by <a href="mailto:author@example.com">Author Name</a></section>
+            <section class="copyright">&copy; 2019 <a href="../index.html">Mohamed Ali Mrabet </a>. All rights reserved</section>
+            <section class="theme"><a href="https://github.com/epistrephein/Steam" target="_blank" rel="noopener">Steam theme</a> by Tommaso Barbato</section>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-csharp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-clike.min.js"></script>
+<!-- Add additional languages here -->
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/smooth-scroll/9.4.3/js/smooth-scroll.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+    <script src="../assets/js/steam.js@v=deb4239dad"></script>
+</body>
+</html>

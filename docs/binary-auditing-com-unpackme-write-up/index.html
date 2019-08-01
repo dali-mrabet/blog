@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <title>Binary-Auditing.com UnpackMe Write-up</title>
+
+    <meta name="apple-mobile-web-app-title" content="Binary-Auditing.com UnpackMe Write-up">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png@v=deb4239dad">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32x32.png@v=deb4239dad">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16x16.png@v=deb4239dad">
+    <link rel="shortcut icon" href="../favicon.ico">
+
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?subset=latin,cyrillic-ext,latin-ext,cyrillic&amp;family=Open+Sans+Condensed:300|Merriweather:400,300,300italic,400italic,700,700italic|Roboto+Slab:400,300">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css">
+
+    <style type="text/css">
+    a, a:visited {color: #33cc99;}
+    .pagination a {color: #33cc99;}
+    .gist .gist-file .gist-meta a:visited {color: #33cc99 !important;}
+
+    a:focus, a:hover {color: #178b6b;}
+    h1.post-title a:focus, h1.post-title a:hover, h1.blog-title a:focus, h1.blog-title a:hover {color: #178b6b;}
+    .older-posts:hover, .newer-posts:hover {color: #178b6b;}
+</style>
+
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/github.min.css">
+    <link rel="stylesheet" href="../assets/css/steam.css@v=deb4239dad.css">
+
+
+    
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+    <link rel="canonical" href="index.html" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <link rel="amphtml" href="amp/index.html" />
+    
+    <meta property="og:site_name" content="Mohamed Ali Mrabet " />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Binary-Auditing.com UnpackMe Write-up" />
+    <meta property="og:description" content="While I was checking  binary-auditing.com&#x27;s package , I found one interesting unpack_me challenge .\nSo I made up my mind to to give a try as it is recommended by many dudes.\n\nWell , apparently our mission is to unpack the binary and change the message it outputs (&amp;quot;UNREGISTERED&amp;" />
+    <meta property="og:url" content="http://localhost:2368/binary-auditing-com-unpackme-write-up/" />
+    <meta property="article:published_time" content="2019-08-01T04:17:55.000Z" />
+    <meta property="article:modified_time" content="2019-08-01T04:17:55.000Z" />
+    <meta property="article:publisher" content="https://www.facebook.com/dali.mrabet.3" />
+    <meta property="article:author" content="https://www.facebook.com/dali.mrabet.3" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Binary-Auditing.com UnpackMe Write-up" />
+    <meta name="twitter:description" content="While I was checking  binary-auditing.com&#x27;s package , I found one interesting unpack_me challenge .\nSo I made up my mind to to give a try as it is recommended by many dudes.\n\nWell , apparently our mission is to unpack the binary and change the message it outputs (&amp;quot;UNREGISTERED&amp;" />
+    <meta name="twitter:url" content="http://localhost:2368/binary-auditing-com-unpackme-write-up/" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="mohamed ali MRABET" />
+    <meta name="twitter:site" content="@Mrabet_Dali" />
+    <meta name="twitter:creator" content="@Mrabet_Dali" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Mohamed Ali Mrabet ",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/favicon.ico",
+            "width": 60,
+            "height": 60
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "mohamed ali MRABET",
+        "url": "http://localhost:2368/author/mohamed/",
+        "sameAs": [
+            "https://www.facebook.com/dali.mrabet.3",
+            "https://twitter.com/Mrabet_Dali"
+        ]
+    },
+    "headline": "Binary-Auditing.com UnpackMe Write-up",
+    "url": "http://localhost:2368/binary-auditing-com-unpackme-write-up/",
+    "datePublished": "2019-08-01T04:17:55.000Z",
+    "dateModified": "2019-08-01T04:17:55.000Z",
+    "description": "While I was checking  binary-auditing.com&#x27;s package , I found one interesting unpack_me challenge .\\nSo I made up my mind to to give a try as it is recommended by many dudes.\\n\\nWell , apparently our mission is to unpack the binary and change the message it outputs (&amp;quot;UNREGISTERED&amp;",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://localhost:2368/"
+    }
+}
+    </script>
+
+    <meta name="generator" content="Ghost 2.26" />
+    <link rel="alternate" type="application/rss+xml" title="Mohamed Ali Mrabet " href="../rss/index.html" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/themes/prism.min.css" />
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/plugins/line-numbers/prism-line-numbers.min.css" />
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/themes/prism-coy.min.css" />
+</head>
+<body class="post-template">
+
+    <header id="site-head">
+        <h1 class="blog-title"><a href="../index.html">Mohamed Ali Mrabet </a></h1>
+        <h1 class="blog-subtitle">Thoughts, stories and ideas.</h1>
+    </header>
+
+        <nav class="menu" role="nav">
+        <ul>
+                    <li class="nav-home"><a href="../index.html">Home</a></li>
+                    <li class="nav-github"><a href="https://github.com/dali-mrabet">github</a></li>
+        </ul>
+    </nav>
+
+
+    <main class="content" role="main">
+    <article class="post">
+        <header>
+        <h1 class="post-title">Binary-Auditing.com UnpackMe Write-up</h1>
+        <div class="post-meta"><time datetime="2019-08-01">01 August 2019</time></div>
+        </header>
+        <section class="post-content">
+            <!--kg-card-begin: markdown--><p>While I was checking  binary-auditing.com's package , I found one interesting unpack_me challenge .\nSo I made up my mind to to give a try as it is recommended by many dudes.\n\nWell , apparently our mission is to unpack the binary and change the message it outputs (&quot;UNREGISTERED&quot;) in order to validate the task .\n\n<img src="http://2.bp.blogspot.com/-QBAVSNSQoVg/VTI20Iu5ZxI/AAAAAAAAAFg/e-cFvSFCnQI/s1600/Capture.PNG=25*10" alt="alt">\n\nAt this point , you can use plenty of tools and olly scripts that are dedicated for unpacking purposes such as IMPrec Universal OEPfinder , but I took a different approach and I managed to unpack it manually by taking a deep look at the behaviour of the unpacker .\n\n<img src="http://1.bp.blogspot.com/-t71S8X31quc/VTI4-hsdsWI/AAAAAAAAAFs/cPNhDw7GR1M/s1600/Capture.PNG" alt="alt">\nAfter loading it in olly , the first CALL is a decryption loop that XORes the first 0x312 bytes starting from 0x0047E340 with 0x62 as a key .Next function  iterates over a range of memory addresses to find the base address of KERNEL32.DLL module . \n\n<img src="http://2.bp.blogspot.com/-S9mus8qJj5I/VTI_THGeRyI/AAAAAAAAAF8/LWR6KoCAtrY/s1600/Capture.PNG" alt="alt">\nSo , we step out to find another interesting CALL at 0x0047E254 which loops through kernel32.dll memory region and does a manual import of some APIs (LoadLibrary ,IsDebuggerPresent , VirtualAlloc, GetTickCount , CreatThread) that are needed for the unpacker stub.\nAs we proceed , we will encounter IsDebuggerPresent() and calls to GetTickCount() , it seems that it checks whether the process is  not being debugged otherwise it calls ExitProcess() .  \n\nIn function 0x0047E144 , there is something that we need to pay attention to . there are two consecutive calls to VirtualProtect() api that contain instructions like REPE MOVS and SCAS ,STOS .. etc. As expected , this a self-modifying code that changes various opcodes in a .code section . If you look a little deeper ,you will notice that it destroyes the unpacking stub .\n\n<img src="http://4.bp.blogspot.com/-kTdFXJNH06k/VTLhGaT35PI/AAAAAAAAAGQ/JkIXPQ_bY1M/s1600/Capture.PNG" alt="alt">\n\nWe keep stepping out until we face obfuscated opcodes that reside within the .klizma section , to make the raw data readable , we click on &quot;remove analysis from module&quot;. It turns out that we have long decryption loop that aims to unpack the first part of the binary .  \n The decryption procedure is so long and it does not seem to end as we might have thought . Therefore we have to find a strategy to find out where this loop ends . Since we are dealing with a packer , we are pretty sure that a call to GetProcAdress() api  is going to take place , so let's set a breakpoint on it and press F9 . As expected !! \n\n<img src="http://2.bp.blogspot.com/-roM_ysdw0eo/VTLu1TdUevI/AAAAAAAAAGg/V-fu9IKe-3M/s1600/Capture.PNG" alt="alt">\n\nMany procedures that are related to text , image drawing(imagelist_drawEx , GetbitmapBits) have been imported and written to     a memory region where EDI points to .Normally it is building the IAT block of the binary .\n After the binary is unpacked , we search for the string &quot;UNREGISTERED&quot; in the dump , and voilà !!\n<img src="http://1.bp.blogspot.com/-HO7wc0QN1jo/VTLztrzkdaI/AAAAAAAAAGs/TSg4CB5OteM/s1600/Capture.PNG" alt="alt">\n\nWe set a hardware breakpoint on it with execution option , and we notice instantly  that it is going to be accessed by  REP MOVS [EDI],[ESI] we follow ESI in dump and then change the string to whatever we want it to output . \n\n<img src="http://3.bp.blogspot.com/-W20tgFMpb58/VTL1zgAVAsI/AAAAAAAAAG4/YJIkf1RQn0g/s1600/Capture.PNG" alt="alt">\n\n\n</p>
+<!--kg-card-end: markdown-->
+        </section>
+        <section class="post-tags">
+            
+        </section>
+        <section class="share">
+            <p class="backtotop"><a data-scroll href="index.html#site-head"><i class="fa fa-lg fa-fw fa-angle-double-up"></i></a><a data-scroll class="backtotoptext" href="index.html#site-head"> Back to top</a></p>
+            <p class="info prompt">Share</p>
+            <a href="http://twitter.com/share?text=Binary-Auditing.com UnpackMe Write-up&url=http://localhost:2368/binary-auditing-com-unpackme-write-up/" title="Share on Twitter"
+                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fa fa-2x fa-fw fa-twitter-square"></i> <span class="hidden">Twitter</span>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:2368/binary-auditing-com-unpackme-write-up/" title="Share on Facebook"
+                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                <i class="fa fa-2x fa-fw fa-facebook-square" style="margin-left: -8px"></i> <span class="hidden">Facebook</span>
+            </a>
+            <a href="https://plus.google.com/share?url=http://localhost:2368/binary-auditing-com-unpackme-write-up/" title="Share on Google+"
+               onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                <i class="fa fa-2x fa-fw fa-google-plus-square" style="margin-left: -8px"></i> <span class="hidden">Google+</span>
+            </a>
+        </section>
+        <footer class="post-footer">
+            <section class="author">
+        <div class="authorimage" style="background: url(../assets/img/default-avatar.png@v=deb4239dad)"></div>
+    <h4 class="author-name">mohamed ali MRABET</h4>
+    <p class="bio"></p>
+    <p class="meta">
+      
+      <i class="fa fa-fw fa-map-marker"></i> Montreal,Quebec
+    </p>
+</section>
+        </footer>
+
+    </article>
+</main>
+
+
+    <footer class="site-footer">
+        <div class="inner">
+            <section class="footer-social">
+        <a href="https://www.facebook.com/dali.mrabet.3" target="_blank" rel="noopener" title="Facebook"><i class="fa fa-2x fa-fw fa-facebook"></i> <span class="hidden">Facebook</span></a>
+        <a href="https://twitter.com/Mrabet_Dali" target="_blank" rel="noopener" title="Twitter"><i class="fa fa-2x fa-fw fa-twitter"></i> <span class="hidden">Twitter</span></a>
+    <a href="../rss/index.html" target="_blank" rel="noopener" title="RSS"><i class="fa fa-2x fa-fw fa-rss"></i> <span class="hidden">RSS</span></a>
+</section>
+            <section class="footer-author">A blog by <a href="mailto:author@example.com">Author Name</a></section>
+            <section class="copyright">&copy; 2019 <a href="../index.html">Mohamed Ali Mrabet </a>. All rights reserved</section>
+            <section class="theme"><a href="https://github.com/epistrephein/Steam" target="_blank" rel="noopener">Steam theme</a> by Tommaso Barbato</section>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-csharp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-clike.min.js"></script>
+<!-- Add additional languages here -->
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/smooth-scroll/9.4.3/js/smooth-scroll.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+    <script src="../assets/js/steam.js@v=deb4239dad"></script>
+</body>
+</html>

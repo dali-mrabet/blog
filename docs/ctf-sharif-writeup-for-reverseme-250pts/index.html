@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <title>CTF Sharif Writeup for ReverseMe 250pts</title>
+
+    <meta name="apple-mobile-web-app-title" content="CTF Sharif Writeup for ReverseMe 250pts">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png@v=deb4239dad">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32x32.png@v=deb4239dad">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16x16.png@v=deb4239dad">
+    <link rel="shortcut icon" href="../favicon.ico">
+
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?subset=latin,cyrillic-ext,latin-ext,cyrillic&amp;family=Open+Sans+Condensed:300|Merriweather:400,300,300italic,400italic,700,700italic|Roboto+Slab:400,300">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css">
+
+    <style type="text/css">
+    a, a:visited {color: #33cc99;}
+    .pagination a {color: #33cc99;}
+    .gist .gist-file .gist-meta a:visited {color: #33cc99 !important;}
+
+    a:focus, a:hover {color: #178b6b;}
+    h1.post-title a:focus, h1.post-title a:hover, h1.blog-title a:focus, h1.blog-title a:hover {color: #178b6b;}
+    .older-posts:hover, .newer-posts:hover {color: #178b6b;}
+</style>
+
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/github.min.css">
+    <link rel="stylesheet" href="../assets/css/steam.css@v=deb4239dad.css">
+
+
+    
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+    <link rel="canonical" href="index.html" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <link rel="amphtml" href="amp/index.html" />
+    
+    <meta property="og:site_name" content="Mohamed Ali Mrabet " />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="CTF Sharif Writeup for ReverseMe 250pts" />
+    <meta property="og:description" content="Today we are going to be talking about how to solve the reverse_me of Sharif CTF .Well , to begin with, I would like to give special thanks to whoever contributed to the CTF for their time devoted in creating such great tasks .\n\nSo, let&#x27;s start with most common" />
+    <meta property="og:url" content="http://localhost:2368/ctf-sharif-writeup-for-reverseme-250pts/" />
+    <meta property="article:published_time" content="2019-08-01T04:13:23.000Z" />
+    <meta property="article:modified_time" content="2019-08-01T04:13:23.000Z" />
+    <meta property="article:publisher" content="https://www.facebook.com/dali.mrabet.3" />
+    <meta property="article:author" content="https://www.facebook.com/dali.mrabet.3" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="CTF Sharif Writeup for ReverseMe 250pts" />
+    <meta name="twitter:description" content="Today we are going to be talking about how to solve the reverse_me of Sharif CTF .Well , to begin with, I would like to give special thanks to whoever contributed to the CTF for their time devoted in creating such great tasks .\n\nSo, let&#x27;s start with most common" />
+    <meta name="twitter:url" content="http://localhost:2368/ctf-sharif-writeup-for-reverseme-250pts/" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="mohamed ali MRABET" />
+    <meta name="twitter:site" content="@Mrabet_Dali" />
+    <meta name="twitter:creator" content="@Mrabet_Dali" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Mohamed Ali Mrabet ",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/favicon.ico",
+            "width": 60,
+            "height": 60
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "mohamed ali MRABET",
+        "url": "http://localhost:2368/author/mohamed/",
+        "sameAs": [
+            "https://www.facebook.com/dali.mrabet.3",
+            "https://twitter.com/Mrabet_Dali"
+        ]
+    },
+    "headline": "CTF Sharif Writeup for ReverseMe 250pts",
+    "url": "http://localhost:2368/ctf-sharif-writeup-for-reverseme-250pts/",
+    "datePublished": "2019-08-01T04:13:23.000Z",
+    "dateModified": "2019-08-01T04:13:23.000Z",
+    "description": "Today we are going to be talking about how to solve the reverse_me of Sharif CTF .Well , to begin with, I would like to give special thanks to whoever contributed to the CTF for their time devoted in creating such great tasks .\\n\\nSo, let&#x27;s start with most common",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://localhost:2368/"
+    }
+}
+    </script>
+
+    <meta name="generator" content="Ghost 2.26" />
+    <link rel="alternate" type="application/rss+xml" title="Mohamed Ali Mrabet " href="../rss/index.html" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/themes/prism.min.css" />
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/plugins/line-numbers/prism-line-numbers.min.css" />
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/themes/prism-coy.min.css" />
+</head>
+<body class="post-template">
+
+    <header id="site-head">
+        <h1 class="blog-title"><a href="../index.html">Mohamed Ali Mrabet </a></h1>
+        <h1 class="blog-subtitle">Thoughts, stories and ideas.</h1>
+    </header>
+
+        <nav class="menu" role="nav">
+        <ul>
+                    <li class="nav-home"><a href="../index.html">Home</a></li>
+                    <li class="nav-github"><a href="https://github.com/dali-mrabet">github</a></li>
+        </ul>
+    </nav>
+
+
+    <main class="content" role="main">
+    <article class="post">
+        <header>
+        <h1 class="post-title">CTF Sharif Writeup for ReverseMe 250pts</h1>
+        <div class="post-meta"><time datetime="2019-08-01">01 August 2019</time></div>
+        </header>
+        <section class="post-content">
+            <!--kg-card-begin: markdown--><p>Today we are going to be talking about how to solve the reverse_me of Sharif CTF .Well , to begin with, I would like to give special thanks to whoever contributed to the CTF for their time devoted in creating such great tasks .\n\nSo, let's start with most common step which a reverse engineer is accustomed to begging with :\n\nLet's scan it with peid :\n\n<img src="http://3.bp.blogspot.com/-_h-2weINT00/VCcOFJoALuI/AAAAAAAAABo/DEqDeAaV4x4/s1600/Capture.PNG" alt="alt">\n\nAs one can see , the binary  is packed with Aspack 2.12 .\n\n#Unpacking the target : \nBefore proceeding , we load the executable into olly , and the first instruction we are going to see  is 'pushad' , just step over it (f8) , then follow ESP in dump  and make a hardware breakpoint on the first 4 bytes :\n<img src="http://2.bp.blogspot.com/-SyrkjfO3KrY/VCcRgrAy_XI/AAAAAAAAAB0/Zv093yPd7zs/s1600/Capture.PNG" alt="alt">\nThen run it (F9) and you will see the following :\n\n<img src="http://4.bp.blogspot.com/-znf47OJcYiE/VCcVa4C-EnI/AAAAAAAAACA/avG_3U-Qt2Y/s1600/Capture1.PNG" alt="alt">\n\nWell , simply put , the packer obviously uses the PUSH followed by the RETN instruction to land at the OEP which is at adress 004016BB .\nOnce you are there , you will notice some obfuscated code that was deliberatley obfuscated by the packer in order to fool the cracker ,  that's where the plugin 'Analyze This!' comes handy .\nIt's purpose is to convert raw data into assembly instructions , so right click and and click on 'Analyze This!' : \n<img src="http://3.bp.blogspot.com/-6Ce4WAfMbCM/VCe2WzFAaxI/AAAAAAAAACQ/IvL4EhEAapk/s1600/Capture2.PNG" alt="alt">\n\nNow ,we have comprehensible machine instructions ,let's use &quot;Dump debugged process&quot; plugin which it's sole intention is to dump active debuggee process , so the very first thing you are going to need is to  copy the value in 'modify' section into the clipboard and then click 'Dump' and save it as 'ReverseMe2' \n\n<img src="http://3.bp.blogspot.com/-6yL8_BXgstE/VCe7lVh1MsI/AAAAAAAAACg/Xk4HUnijG6k/s1600/Capture3.PNG" alt="alt">\n\nInevitably ,since the binary is packed, then it comes as no surprise  that the IAT table is destroyed ,so in order to circumvent this ,we have to rebuild the IAT with 'IMPrec tool' .\n\nso , run ' IMPrec&quot; and then select the process of &quot;ReverseMe&quot; from the running process list and past the value that we have copied  previously  into the 'OEP' of IMPrec and click on 'IAT AutoSearch'  and then on'Get Imports ',  finally click on 'Fix dump' and select the executable &quot;ReversMe2.exe&quot; and it will be saved as &quot;ReversMe2_.exe&quot;\n<img src="http://1.bp.blogspot.com/-0pXMSo8_tLg/VCfD6yw8LEI/AAAAAAAAACw/-oiKVZU72ZQ/s1600/Capture4.PNG" alt="alt">\n\nThe important thing is that during these steps you have to be very careful ,otherwise the entire thing does not work . \n#Finding  the Flag \n\nAfter unpacking the binary ,now we are ready to reverse engineer it ,so load the &quot;ReverseMe2_.exe&quot;into olly and select   &quot;search for -&gt;all intermodular calls&quot; then right click on &quot;getdigitemtextA&quot; API and click on &quot;set breakpoint on every call to getdigitemtextA&quot; and run the program (F9) : \n<img src="http://4.bp.blogspot.com/-nsF1-zntuu4/VCfJTkyigRI/AAAAAAAAADA/VZFuQ53JvUs/s1600/Capture5.PNG" alt="alt">\n\nhere , just put an email address and serial number and click on &quot;OK&quot;,and you will hit the breakpoint on the first &quot;getdigItextitem&quot; api  just step over them .\n<code>\nLEA EAX,DWORD PTR SS:[EBP-340] ; loads eax with memory address of the email   \nPUSH r_.0040FD0C ;push the memory address of '@' charchter \nPUSH EAX ;push memory address of the email  \nCALL r_.004013A0 ; this routine checks to see whether email string contains '@'or not ,\nADD ESP,8 ; removes the addresses of email and '@' from the stack  \nTEST EAX,EAX ; checks the return value of the previous routine  \nJE SHORT r_.00401144 ; jumps if eax contains 0 \nLEA EAX,DWORD PTR SS:[EBP-340] ;  loads eax with memory address of the email \nPUSH r_.0040FD34 ; push the memory address of '.' charchter \nPUSH EAX ; push memory address of the email  \nCALL r_.004013A0 ; this routine checks to see whether '@blabla.tn 'string contains '.'or not \nADD ESP,8 ;removes the addresses of '@blabla.tn 'string and '.' from the stack \nTEST EAX,EAX ; checks the return value of the previous routine \nJE SHORT r_.00401144 ;jumps if eax contains 0 \nLEA EAX,DWORD PTR SS:[EBP-340];loads eax with memory address of the email \nPUSH r_.0040FD34 ;push the memory address of '.' charchter\nPUSH EAX ;push memory address of the email  \nCALL r_.004013A0 ; the same routine previously called \nADD ESP,8 ;removes the addresses of '@blabla.tn 'string and '.' from the stack\nCMP BYTE PTR DS:[EAX+1],0;compares the first char after the '.' with 0  \nJE SHORT r_.00401144 ;jumps if nothing after the point charachter \n LEA EAX,DWORD PTR SS:[EBP-340] ; loads eax with memory address of the email \n PUSH r_.0040FD0C; push the memory address of '@' charchter \n PUSH EAX ;push memory address of the email\nCALL r_.004013A0 ; this routine checks to see whether email string contains '@'or not\nADD ESP,8\n CMP BYTE PTR DS:[EAX+1],2E ; compares the char after '@' with the '.'char\n JNZ SHORT r_.0040114E ; else jump to serial checking routine \n PUSH r_.0040FD10                               ;  ASCII \&quot;Your E-mail address in not valid.\&quot;\nJMP r_.004012A5  ; jump to nag \nMOVQ MM0,QWORD PTR DS:[40FD70] ; loads MM0 with adress of \&quot;registration fail\&quot;\n   LEA ECX,DWORD PTR SS:[EBP-240] : loads ECX with the our serial  \nMOV AL,BYTE PTR DS:[ECX] ; moves the byte which  ecx is pointing to , to AL\n  INC ECX                                ;  r_.0040FD0D increments the address that ECX contains\nTEST AL,AL ;  checks whether AL contains 0 or not \n JNZ SHORT r_.00401192 ; if not  jump back and increment ECX \nSUB ECX,EDX ; subtract ecx from edx \nCMP ECX,10 ;checks the length of the serial \nJNZ r_.004012A1 jump to nag if the length is not 16\nCMP BYTE PTR SS:[EBP-240],42 ; compare the first char with 'B'\nJNZ r_.004012A1 : if not equal jump to nag \n MOVSX EAX,BYTE PTR SS:[EBP-231] ; moves the last char of the entered serial  to EAX\n \nADD EAX,42 ; adds eax with 42 \nCMP EAX,9B  ;  and cmp it with 9b ,so the last char should be 9B - 42 = 59 which is 'Y'\nJNZ r_.004012A1 else jump to nag \n \nMOVSX ECX,BYTE PTR SS:[EBP-23F] ; it loads the second char\nLEA EAX,DWORD PTR DS:[ECX-3] ; loads eax with ord(second char) - 3\n CMP EAX,57 ;cmp it 57 ,that means the second char should be 57 + 3 = 5A which is 'Z'\nJNZ r_.004012A1 else jump to nag \nMOVSX EAX,BYTE PTR SS:[EBP-232] ; loads the 15h to eax char\nADD EAX,ECX   ;  adds eax with 5A\nCMP EAX,9B ; the 15 element should be 9b - 5A = 41 the char is 'A'\nJNZ r_.004012A1 else jump to nag \nMOVSX ECX,BYTE PTR SS:[EBP-23E] ; load the 3rd char\n LEA EAX,DWORD PTR DS:[ECX+1] ;  ord(3rd char)+1\nCMP EAX,3A ; 3 rd char is 39 = '9'\nJNZ r_.004012A1 else jump \nMOVSX EAX,BYTE PTR SS:[EBP-233] load the 14th char\nADD EAX,ECX ;\n CMP EAX,9B ; the 14th char is 62h = 'b'\nJNZ r_.004012A1 else jump to nag \nCMP BYTE PTR SS:[EBP-23D],64 ;  the 4th char is 'd'\nJNZ r_.004012A1 else jump \n MOVSX EAX,BYTE PTR SS:[EBP-234] ; loads the 13 char\n ADD EAX,64\n CMP EAX,9B ; the 13 th char is 37h = '7'\nJNZ SHORT r_.004012A1 else jump to nag \nCMP BYTE PTR SS:[EBP-23C],6D ; the 5th char is  'm'\nJNZ SHORT r_.004012A1 else jump to nag \nMOVSX EAX,BYTE PTR SS:[EBP-235] ; loads eax with 12th char\nADD EAX,81\nCMP EAX,0C8 ; 12th char is c8 - 81 = 47h ..'G'\nJNZ SHORT r_.004012A1 ; nag \n MOVSX ECX,BYTE PTR SS:[EBP-23B] ; loads the 6th char\nLEA EAX,DWORD PTR DS:[ECX-2D]  ; \nCMP EAX,44 ; the 6th char should be 44 + 2d = 71 = 'q'\n JNZ SHORT r_.004012A1 else jump nag \nMOVSX EAX,BYTE PTR SS:[EBP-236] ; the 11th char\n ADD EAX,ECX                                    ;  r_.0040FD0D\nCMP EAX,0AA  ;the 11char is AA - 71 = 39h = '9'\nJNZ SHORT r_.004012A1 ; nag \nCMP BYTE PTR SS:[EBP-23A],34 ; the 7th char is '4'\nJNZ SHORT r_.004012A1 ;nag\nMOVSX EAX,BYTE PTR SS:[EBP-237] ; loads the 10th char\nADD EAX,34\nCMP EAX,9B ; 10th char is 9b - 34 = 67h = 'g'\nJNZ SHORT r_.004012A1 ;nag\nCMP BYTE PTR SS:[EBP-239],63 ;the 8th char is 'c'\n JNZ SHORT r_.004012A1 ;nag\nMOVSX EAX,BYTE PTR SS:[EBP-238] ; the \n ADD EAX,63\nCMP EAX,9B ; the 9th char is 9b - 63 = 38h = '8'\n \n JE SHORT r_.004012BB ; get past the nag screen \n</code>\nWell , after putting the chararcters in order ,the serial should be like this : == = 'BZ9dmq4c8g9G7bAY' ==\n<img src="http://3.bp.blogspot.com/-4WNqCIDsoVg/VCfoCw1U1nI/AAAAAAAAADQ/asxo9Wd_9-A/s1600/Capture6.PNG" alt="alt">\n\n That's it basically , the reverseme is very simple , the serial checking routine ain't that  complicated , it is something that is learnt with time as  you practice with machine instructions .\n\nSo I am expecting your valuable feedback and suggestions for betterment . \n</p>
+<!--kg-card-end: markdown-->
+        </section>
+        <section class="post-tags">
+            
+        </section>
+        <section class="share">
+            <p class="backtotop"><a data-scroll href="index.html#site-head"><i class="fa fa-lg fa-fw fa-angle-double-up"></i></a><a data-scroll class="backtotoptext" href="index.html#site-head"> Back to top</a></p>
+            <p class="info prompt">Share</p>
+            <a href="http://twitter.com/share?text=CTF Sharif Writeup for ReverseMe 250pts&url=http://localhost:2368/ctf-sharif-writeup-for-reverseme-250pts/" title="Share on Twitter"
+                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fa fa-2x fa-fw fa-twitter-square"></i> <span class="hidden">Twitter</span>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:2368/ctf-sharif-writeup-for-reverseme-250pts/" title="Share on Facebook"
+                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                <i class="fa fa-2x fa-fw fa-facebook-square" style="margin-left: -8px"></i> <span class="hidden">Facebook</span>
+            </a>
+            <a href="https://plus.google.com/share?url=http://localhost:2368/ctf-sharif-writeup-for-reverseme-250pts/" title="Share on Google+"
+               onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                <i class="fa fa-2x fa-fw fa-google-plus-square" style="margin-left: -8px"></i> <span class="hidden">Google+</span>
+            </a>
+        </section>
+        <footer class="post-footer">
+            <section class="author">
+        <div class="authorimage" style="background: url(../assets/img/default-avatar.png@v=deb4239dad)"></div>
+    <h4 class="author-name">mohamed ali MRABET</h4>
+    <p class="bio"></p>
+    <p class="meta">
+      
+      <i class="fa fa-fw fa-map-marker"></i> Montreal,Quebec
+    </p>
+</section>
+        </footer>
+
+    </article>
+</main>
+
+
+    <footer class="site-footer">
+        <div class="inner">
+            <section class="footer-social">
+        <a href="https://www.facebook.com/dali.mrabet.3" target="_blank" rel="noopener" title="Facebook"><i class="fa fa-2x fa-fw fa-facebook"></i> <span class="hidden">Facebook</span></a>
+        <a href="https://twitter.com/Mrabet_Dali" target="_blank" rel="noopener" title="Twitter"><i class="fa fa-2x fa-fw fa-twitter"></i> <span class="hidden">Twitter</span></a>
+    <a href="../rss/index.html" target="_blank" rel="noopener" title="RSS"><i class="fa fa-2x fa-fw fa-rss"></i> <span class="hidden">RSS</span></a>
+</section>
+            <section class="footer-author">A blog by <a href="mailto:author@example.com">Author Name</a></section>
+            <section class="copyright">&copy; 2019 <a href="../index.html">Mohamed Ali Mrabet </a>. All rights reserved</section>
+            <section class="theme"><a href="https://github.com/epistrephein/Steam" target="_blank" rel="noopener">Steam theme</a> by Tommaso Barbato</section>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-csharp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-clike.min.js"></script>
+<!-- Add additional languages here -->
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/smooth-scroll/9.4.3/js/smooth-scroll.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+    <script src="../assets/js/steam.js@v=deb4239dad"></script>
+</body>
+</html>

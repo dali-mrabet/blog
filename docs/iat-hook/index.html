@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <title>IAT hook</title>
+
+    <meta name="apple-mobile-web-app-title" content="IAT hook">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png@v=deb4239dad">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32x32.png@v=deb4239dad">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16x16.png@v=deb4239dad">
+    <link rel="shortcut icon" href="../favicon.ico">
+
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?subset=latin,cyrillic-ext,latin-ext,cyrillic&amp;family=Open+Sans+Condensed:300|Merriweather:400,300,300italic,400italic,700,700italic|Roboto+Slab:400,300">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css">
+
+    <style type="text/css">
+    a, a:visited {color: #33cc99;}
+    .pagination a {color: #33cc99;}
+    .gist .gist-file .gist-meta a:visited {color: #33cc99 !important;}
+
+    a:focus, a:hover {color: #178b6b;}
+    h1.post-title a:focus, h1.post-title a:hover, h1.blog-title a:focus, h1.blog-title a:hover {color: #178b6b;}
+    .older-posts:hover, .newer-posts:hover {color: #178b6b;}
+</style>
+
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/github.min.css">
+    <link rel="stylesheet" href="../assets/css/steam.css@v=deb4239dad.css">
+
+
+    
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+    <link rel="canonical" href="index.html" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <link rel="amphtml" href="amp/index.html" />
+    
+    <meta property="og:site_name" content="Mohamed Ali Mrabet " />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="IAT hook" />
+    <meta property="og:description" content="This tool , in its simplest form , hooks an API entry address (Function pointer) in an IAT , and overwrites it with a custom implementation . Technically , this code must be compiled in a DLL , then injected in address space of process (e.g with SetWindowsHookEx( ) ),  which is employed to locate the  RVA" />
+    <meta property="og:url" content="http://localhost:2368/iat-hook/" />
+    <meta property="article:published_time" content="2019-08-01T14:28:26.000Z" />
+    <meta property="article:modified_time" content="2019-08-01T14:28:26.000Z" />
+    <meta property="article:publisher" content="https://www.facebook.com/dali.mrabet.3" />
+    <meta property="article:author" content="https://www.facebook.com/dali.mrabet.3" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="IAT hook" />
+    <meta name="twitter:description" content="This tool , in its simplest form , hooks an API entry address (Function pointer) in an IAT , and overwrites it with a custom implementation . Technically , this code must be compiled in a DLL , then injected in address space of process (e.g with SetWindowsHookEx( ) ),  which is employed to locate the  RVA" />
+    <meta name="twitter:url" content="http://localhost:2368/iat-hook/" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="mohamed ali MRABET" />
+    <meta name="twitter:site" content="@Mrabet_Dali" />
+    <meta name="twitter:creator" content="@Mrabet_Dali" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Mohamed Ali Mrabet ",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/favicon.ico",
+            "width": 60,
+            "height": 60
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "mohamed ali MRABET",
+        "url": "http://localhost:2368/author/mohamed/",
+        "sameAs": [
+            "https://www.facebook.com/dali.mrabet.3",
+            "https://twitter.com/Mrabet_Dali"
+        ]
+    },
+    "headline": "IAT hook",
+    "url": "http://localhost:2368/iat-hook/",
+    "datePublished": "2019-08-01T14:28:26.000Z",
+    "dateModified": "2019-08-01T14:28:26.000Z",
+    "description": "This tool , in its simplest form , hooks an API entry address (Function pointer) in an IAT , and overwrites it with a custom implementation . Technically , this code must be compiled in a DLL , then injected in address space of process (e.g with SetWindowsHookEx( ) ),  which is employed to locate the  RVA",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://localhost:2368/"
+    }
+}
+    </script>
+
+    <meta name="generator" content="Ghost 2.26" />
+    <link rel="alternate" type="application/rss+xml" title="Mohamed Ali Mrabet " href="../rss/index.html" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/themes/prism.min.css" />
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/plugins/line-numbers/prism-line-numbers.min.css" />
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/themes/prism-coy.min.css" />
+</head>
+<body class="post-template">
+
+    <header id="site-head">
+        <h1 class="blog-title"><a href="../index.html">Mohamed Ali Mrabet </a></h1>
+        <h1 class="blog-subtitle">Thoughts, stories and ideas.</h1>
+    </header>
+
+        <nav class="menu" role="nav">
+        <ul>
+                    <li class="nav-home"><a href="../index.html">Home</a></li>
+                    <li class="nav-github"><a href="https://github.com/dali-mrabet">github</a></li>
+        </ul>
+    </nav>
+
+
+    <main class="content" role="main">
+    <article class="post">
+        <header>
+        <h1 class="post-title">IAT hook</h1>
+        <div class="post-meta"><time datetime="2019-08-01">01 August 2019</time></div>
+        </header>
+        <section class="post-content">
+            <!--kg-card-begin: markdown--><p>This tool , in its simplest form , hooks an API entry address (Function pointer) in an IAT , and overwrites it with a custom implementation . Technically , this code must be compiled in a DLL , then injected in address space of process (e.g with SetWindowsHookEx( ) ),  which is employed to locate the  RVA of the import table   (<em>DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress</em>) and eventually gets the entry in <em>FirstThunk</em> linked list to change the value of <em>u1.Function</em> to the hooking function. For all practical purposes , IAT hooking comes handy in variety of situations : -  During unpacking phase (e.g : hooking ExitProcess() ) . - Malwares often take advantage of it to hide their presence in the system. - Intercepting API calls and parameters. - Avoids anti-malware detection mechanism .</p>
+<!--kg-card-end: markdown--><!--kg-card-begin: html--><pre class="line-numbers"><code class="lang-c">
+#include "main.h"
+#include <\Windows.h\>
+#include <\stdio.h\>
+#include <\stdlib.h\>
+#include <\string.h\>
+
+// a sample exported function
+
+
+inline void  WINAPI trampoline()
+{
+
+    fprintf(stdout,"%s \n ","Hooked !! ");
+
+}
+
+void HookIAT (const char  * api , DWORD  HookFuncAddr )
+{
+
+    IMAGE_DOS_HEADER * idh = NULL ;
+    HMODULE CurrentExe = GetModuleHandle(NULL);
+    DWORD Protect = 0;
+    IMAGE_NT_HEADERS * inh = NULL ;
+    DWORD t = 0 ;
+    IMAGE_THUNK_DATA * itd ;
+    int j = -1, i  = 0;
+    IMAGE_THUNK_DATA * itdf ;
+    idh = (IMAGE_DOS_HEADER * )CurrentExe ;
+
+
+    if(idh->e_magic != 0x5a4d )
+    {
+        ExitProcess(-1) ;
+    }
+    inh = (IMAGE_NT_HEADERS * )((DWORD)CurrentExe  + (DWORD)idh->e_lfanew ) ;
+
+    if(inh->Signature != 0x4550 )
+    {
+        ExitProcess(-1);
+    }
+    // Get the Virtaul address of import adress table !!
+    IMAGE_IMPORT_DESCRIPTOR * va_import = (IMAGE_IMPORT_DESCRIPTOR * )((DWORD)inh->OptionalHeader.ImageBase + (DWORD)inh->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress );
+
+     itd = (IMAGE_THUNK_DATA * )( (DWORD)CurrentExe + va_import[0].OriginalFirstThunk );
+    // contains the adresses of the imported APIs
+     itdf = (IMAGE_THUNK_DATA * )( (DWORD)CurrentExe + va_import[0].FirstThunk ) ;
+
+
+    while(va_import[i].Characteristics != 0)
+    {
+
+        j = -1 ;
+
+        while(itd[++j].u1.Function != 0)
+        {
+
+            if(strcmp((const char *)api , (const char * )((DWORD) CurrentExe + (DWORD)(itd[j].u1.ForwarderString + 2)) ) == 0)
+            {
+
+                if(!VirtualProtect(&itdf[j].u1.Function, sizeof(LPVOID), PAGE_READWRITE, &Protect) )
+                {
+                    ExitProcess(-1) ;
+                }
+
+                 itdf[j].u1.Function = (DWORD )HookFuncAddr;
+
+
+                if(!VirtualProtect(&itdf[j].u1.Function, sizeof(LPVOID), Protect, &t) )
+                {
+                    ExitProcess(-1) ;
+                }
+
+            }
+        }
+
+        i++ ;
+        itd = (IMAGE_THUNK_DATA * )((DWORD)CurrentExe + va_import[i].OriginalFirstThunk );
+
+        itdf = (IMAGE_THUNK_DATA * )((DWORD)CurrentExe + va_import[i].FirstThunk );
+    }
+}
+
+
+
+extern "C" DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+{
+    switch (fdwReason)
+    {
+
+    case DLL_PROCESS_ATTACH:
+        // attach to process
+        // return FALSE to fail DLL load
+
+        HookIAT("MessageBoxA",(DWORD  )trampoline) ;
+
+ /// the following api will be hooked and the trampoline() function will be executed instead !!
+
+        MessageBoxA(NULL,"L0phtTn","HookMe",0);
+
+        break;
+
+    case DLL_PROCESS_DETACH:
+        // detach from process
+        break;
+
+    case DLL_THREAD_ATTACH:
+        // attach to thread
+        break;
+
+    case DLL_THREAD_DETACH:
+        // detach from thread
+        break;
+
+    }
+    return TRUE; // succesful
+}
+</code></pre><!--kg-card-end: html-->
+        </section>
+        <section class="post-tags">
+            
+        </section>
+        <section class="share">
+            <p class="backtotop"><a data-scroll href="index.html#site-head"><i class="fa fa-lg fa-fw fa-angle-double-up"></i></a><a data-scroll class="backtotoptext" href="index.html#site-head"> Back to top</a></p>
+            <p class="info prompt">Share</p>
+            <a href="http://twitter.com/share?text=IAT hook&url=http://localhost:2368/iat-hook/" title="Share on Twitter"
+                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fa fa-2x fa-fw fa-twitter-square"></i> <span class="hidden">Twitter</span>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:2368/iat-hook/" title="Share on Facebook"
+                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                <i class="fa fa-2x fa-fw fa-facebook-square" style="margin-left: -8px"></i> <span class="hidden">Facebook</span>
+            </a>
+            <a href="https://plus.google.com/share?url=http://localhost:2368/iat-hook/" title="Share on Google+"
+               onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                <i class="fa fa-2x fa-fw fa-google-plus-square" style="margin-left: -8px"></i> <span class="hidden">Google+</span>
+            </a>
+        </section>
+        <footer class="post-footer">
+            <section class="author">
+        <div class="authorimage" style="background: url(../assets/img/default-avatar.png@v=deb4239dad)"></div>
+    <h4 class="author-name">mohamed ali MRABET</h4>
+    <p class="bio"></p>
+    <p class="meta">
+      
+      <i class="fa fa-fw fa-map-marker"></i> Montreal,Quebec
+    </p>
+</section>
+        </footer>
+
+    </article>
+</main>
+
+
+    <footer class="site-footer">
+        <div class="inner">
+            <section class="footer-social">
+        <a href="https://www.facebook.com/dali.mrabet.3" target="_blank" rel="noopener" title="Facebook"><i class="fa fa-2x fa-fw fa-facebook"></i> <span class="hidden">Facebook</span></a>
+        <a href="https://twitter.com/Mrabet_Dali" target="_blank" rel="noopener" title="Twitter"><i class="fa fa-2x fa-fw fa-twitter"></i> <span class="hidden">Twitter</span></a>
+    <a href="../rss/index.html" target="_blank" rel="noopener" title="RSS"><i class="fa fa-2x fa-fw fa-rss"></i> <span class="hidden">RSS</span></a>
+</section>
+            <section class="footer-author">A blog by <a href="mailto:author@example.com">Author Name</a></section>
+            <section class="copyright">&copy; 2019 <a href="../index.html">Mohamed Ali Mrabet </a>. All rights reserved</section>
+            <section class="theme"><a href="https://github.com/epistrephein/Steam" target="_blank" rel="noopener">Steam theme</a> by Tommaso Barbato</section>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-csharp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-clike.min.js"></script>
+<!-- Add additional languages here -->
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/smooth-scroll/9.4.3/js/smooth-scroll.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+    <script src="../assets/js/steam.js@v=deb4239dad"></script>
+</body>
+</html>

