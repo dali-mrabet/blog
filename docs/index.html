@@ -110,6 +110,16 @@
     <main class="content" role="main">
     <article class="preview">
         <header>
+            <h1 class="post-title"><a href="fireeye-flare-on-challenge-write-up/index.html">FireEye FLARE-ON challenge write-up</a></h1>
+            <div class="post-meta"><time datetime="2019-08-01">01 August 2019</time></div>
+        </header>
+        <section class="post-excerpt">
+            <a class="excerptlink" href="fireeye-flare-on-challenge-write-up/index.html"><p>Earlier this week , I have participated in Flare-On challenge which is hosted by Fire-Eye labs annually . The challenge was very comprehensive as its tasks targeted various platforms Windows(64-bit exe, Software Driver , .NET) , Android , etc ... . Unfortunatley , I started playing just 3 hours before the challenge was over , so I solved only the first two crackmes , just for my scrutiny I plan to solve other ones as time permits. In this Blogpost I will be talking about on how I solved the 2nd binary .The moment when I opened it with&hellip;</p></a>
+            <p class="readmore"><a href="fireeye-flare-on-challenge-write-up/index.html">Keep reading <i class="fa fa-angle-double-right" style="padding-left: 5px;"></i></a></p>
+        </section>
+    </article>
+    <article class="preview">
+        <header>
             <h1 class="post-title"><a href="win-32-bit-disable-dep-polymorphic-shellcode/index.html">Win 32-bit DISABLE DEP Polymorphic ShellCode</a></h1>
             <div class="post-meta"><time datetime="2019-08-01">01 August 2019</time></div>
         </header>
@@ -146,16 +156,6 @@
         <section class="post-excerpt">
             <a class="excerptlink" href="32-bit-pe-injector/index.html"><p>I am releasing my new tool PEInject, It does inject some shellcodes into a desired process . Currently , it does only work with 32-bit executables , please don't expect it to work flawlessly on all targets. It may fail if the target is loaded with /DYNAMICBASE module or DEP is permanently active on it.  On Windows XP it allocates enough room for the shellcode and executes it with 'CreateRemoteThread'. Because On Windows Vista/Win7/Win8.1 the'CreateRemoteThread' does not work smoothly due to some additional protection mechanisms ,so the injector creates an&hellip;</p></a>
             <p class="readmore"><a href="32-bit-pe-injector/index.html">Keep reading <i class="fa fa-angle-double-right" style="padding-left: 5px;"></i></a></p>
-        </section>
-    </article>
-    <article class="preview">
-        <header>
-            <h1 class="post-title"><a href="win32-run-time-decryption-backdoor/index.html">Win32 Run-Time decryption Backdoor</a></h1>
-            <div class="post-meta"><time datetime="2019-08-01">01 August 2019</time></div>
-        </header>
-        <section class="post-excerpt">
-            <a class="excerptlink" href="win32-run-time-decryption-backdoor/index.html"><p>Well , I had to code my own backdoor from the scratch , which  it has proven to be successful in evading almost all anti-virus products since it takes advantage of the process-replacement technique . Basically , process-replacement is the act of creating a system process (e.g : csrss.exe) in  suspended state , and then unmaps (deallocate) that process  adresss space by calling NtUnmapViewOfsection() and maps the backdoor's content in it , and finally resuming that process execution with ResumeThread() ,  hence this is  definitely a good strategy to bypass anti-virus detection due to the fact&hellip;</p></a>
-            <p class="readmore"><a href="win32-run-time-decryption-backdoor/index.html">Keep reading <i class="fa fa-angle-double-right" style="padding-left: 5px;"></i></a></p>
         </section>
     </article>
     <nav class="pagination" role="pagination">
