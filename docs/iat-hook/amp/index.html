@@ -15,7 +15,13 @@
     <meta property="og:site_name" content="Mohamed Ali Mrabet " />
     <meta property="og:type" content="article" />
     <meta property="og:title" content="IAT hook" />
-    <meta property="og:description" content="This tool , in its simplest form , hooks an API entry address (Function pointer) in an IAT , and overwrites it with a custom implementation . Technically , this code must be compiled in a DLL , then injected in address space of process (e.g with SetWindowsHookEx( ) ),  which is employed to locate the  RVA" />
+    <meta property="og:description" content="This tool , in its simplest form , hooks an API entry address (Function pointer)
+in an IAT , and overwrites it with a custom implementation . Technically , this
+code must be compiled in a DLL , then injected in address space of process (e.g
+with SetWindowsHookEx( ) ), which is employed to locate the RVA of the import
+table (DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress) and
+eventually gets the entry in FirstThunk linked list to change the value of 
+u1.Function to the hooking functio" />
     <meta property="og:url" content="http://localhost:2368/iat-hook/" />
     <meta property="article:published_time" content="2019-08-01T14:28:26.000Z" />
     <meta property="article:modified_time" content="2019-08-01T14:28:26.000Z" />
@@ -23,7 +29,13 @@
     <meta property="article:author" content="https://www.facebook.com/dali.mrabet.3" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="IAT hook" />
-    <meta name="twitter:description" content="This tool , in its simplest form , hooks an API entry address (Function pointer) in an IAT , and overwrites it with a custom implementation . Technically , this code must be compiled in a DLL , then injected in address space of process (e.g with SetWindowsHookEx( ) ),  which is employed to locate the  RVA" />
+    <meta name="twitter:description" content="This tool , in its simplest form , hooks an API entry address (Function pointer)
+in an IAT , and overwrites it with a custom implementation . Technically , this
+code must be compiled in a DLL , then injected in address space of process (e.g
+with SetWindowsHookEx( ) ), which is employed to locate the RVA of the import
+table (DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress) and
+eventually gets the entry in FirstThunk linked list to change the value of 
+u1.Function to the hooking functio" />
     <meta name="twitter:url" content="http://localhost:2368/iat-hook/" />
     <meta name="twitter:label1" content="Written by" />
     <meta name="twitter:data1" content="mohamed ali MRABET" />
@@ -57,7 +69,7 @@
     "url": "http://localhost:2368/iat-hook/",
     "datePublished": "2019-08-01T14:28:26.000Z",
     "dateModified": "2019-08-01T14:28:26.000Z",
-    "description": "This tool , in its simplest form , hooks an API entry address (Function pointer) in an IAT , and overwrites it with a custom implementation . Technically , this code must be compiled in a DLL , then injected in address space of process (e.g with SetWindowsHookEx( ) ),  which is employed to locate the  RVA",
+    "description": "This tool , in its simplest form , hooks an API entry address (Function pointer)\nin an IAT , and overwrites it with a custom implementation . Technically , this\ncode must be compiled in a DLL , then injected in address space of process (e.g\nwith SetWindowsHookEx( ) ), which is employed to locate the RVA of the import\ntable (DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress) and\neventually gets the entry in FirstThunk linked list to change the value of \nu1.Function to the hooking functio",
     "mainEntityOfPage": {
         "@type": "WebPage",
         "@id": "http://localhost:2368/"

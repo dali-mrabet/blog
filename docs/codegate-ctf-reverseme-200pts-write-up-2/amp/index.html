@@ -15,7 +15,13 @@
     <meta property="og:site_name" content="Mohamed Ali Mrabet " />
     <meta property="og:type" content="article" />
     <meta property="og:title" content="Codegate CTF ReverseMe 200pts Write-up" />
-    <meta property="og:description" content="This task is  really challenging as it contains some anti-reversing related stuff.\nI grabbed the binary and threw it in olly and .....Ooops ..it just quits immediatly .\n\n At first , I was stuck for minutes .because the binary is supposed to be landing on the entry point .\nThen after" />
+    <meta property="og:description" content="This task is really challenging as it contains some anti-reversing related
+stuff.\nI grabbed the binary and threw it in olly and .....Ooops ..it just quits
+immediatly .\n\n At first , I was stuck for minutes .because the binary is
+supposed to be landing on the entry point .\nThen after googling up , I figured
+out that the moment when the debugger attaches to it the binary purposefully
+hits the ret instructions because of the TLS callback .\n\nWell TLS stands for
+Thread Local Storage , it is sect" />
     <meta property="og:url" content="http://localhost:2368/codegate-ctf-reverseme-200pts-write-up-2/" />
     <meta property="article:published_time" content="2019-08-01T04:16:42.000Z" />
     <meta property="article:modified_time" content="2019-08-01T04:16:42.000Z" />
@@ -23,7 +29,13 @@
     <meta property="article:author" content="https://www.facebook.com/dali.mrabet.3" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Codegate CTF ReverseMe 200pts Write-up" />
-    <meta name="twitter:description" content="This task is  really challenging as it contains some anti-reversing related stuff.\nI grabbed the binary and threw it in olly and .....Ooops ..it just quits immediatly .\n\n At first , I was stuck for minutes .because the binary is supposed to be landing on the entry point .\nThen after" />
+    <meta name="twitter:description" content="This task is really challenging as it contains some anti-reversing related
+stuff.\nI grabbed the binary and threw it in olly and .....Ooops ..it just quits
+immediatly .\n\n At first , I was stuck for minutes .because the binary is
+supposed to be landing on the entry point .\nThen after googling up , I figured
+out that the moment when the debugger attaches to it the binary purposefully
+hits the ret instructions because of the TLS callback .\n\nWell TLS stands for
+Thread Local Storage , it is sect" />
     <meta name="twitter:url" content="http://localhost:2368/codegate-ctf-reverseme-200pts-write-up-2/" />
     <meta name="twitter:label1" content="Written by" />
     <meta name="twitter:data1" content="mohamed ali MRABET" />
@@ -57,7 +69,7 @@
     "url": "http://localhost:2368/codegate-ctf-reverseme-200pts-write-up-2/",
     "datePublished": "2019-08-01T04:16:42.000Z",
     "dateModified": "2019-08-01T04:16:42.000Z",
-    "description": "This task is  really challenging as it contains some anti-reversing related stuff.\\nI grabbed the binary and threw it in olly and .....Ooops ..it just quits immediatly .\\n\\n At first , I was stuck for minutes .because the binary is supposed to be landing on the entry point .\\nThen after",
+    "description": "This task is really challenging as it contains some anti-reversing related\nstuff.\\nI grabbed the binary and threw it in olly and .....Ooops ..it just quits\nimmediatly .\\n\\n At first , I was stuck for minutes .because the binary is\nsupposed to be landing on the entry point .\\nThen after googling up , I figured\nout that the moment when the debugger attaches to it the binary purposefully\nhits the ret instructions because of the TLS callback .\\n\\nWell TLS stands for\nThread Local Storage , it is sect",
     "mainEntityOfPage": {
         "@type": "WebPage",
         "@id": "http://localhost:2368/"
